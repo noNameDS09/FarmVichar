@@ -1,8 +1,8 @@
-# Welcome to your Expo app 👋
+# Welcome to FarmVichar 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 ## Prerequisites
 1. Install [NodeJS](https://nodejs.org/en/download). Make sure to add the path (if not added automatically or restart the computer)
+2. Add the Expo Go app in your mobile.
    
 ## Get started
 1. Install dependencies
@@ -29,9 +29,6 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+It will start the server and you will see the QR code. Scan the QR the app will be opened.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+For more info visit -> [Expo](https://expo.dev)
