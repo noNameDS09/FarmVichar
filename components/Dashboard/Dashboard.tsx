@@ -1,91 +1,117 @@
-import React, { useEffect, useState } from 'react';
-import { Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ScrollView, Text, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import React from 'react'
 
-interface Weather {
-  temperature: number;
-  condition: string;
+interface PriceRange {
+  crop_name: string
+  min_price: number
+  max_price: number
 }
 
-interface DashboardData {
-  weather: Weather;
-  pestRisk: number;
-  gradingFactor: number;
-  cropPrice: number;
+interface Predictions {
+  recommended_crop: string
+  yield_prediction_kg_acre: number
+  pest_risk_percent: number
+  quality_grading_score: number
+  price_range_per_quintal: PriceRange
+  applicable_schemes: string[]
+  applied_schemes: string[]
 }
 
-const dummyData: DashboardData = {
-  weather: { temperature: 25, condition: 'Sunny' },
-  pestRisk: 15,
-  gradingFactor: 8.5,
-  cropPrice: 120.50,
-};
+interface Farmer {
+  name: string
+  location: string
+  farm_size_acres: number
+}
 
-const Dashboard = () => {
-  const [userName, setUserName] = useState<string | null>(null);
+interface DashboardProps {
+  predictions: Predictions
+  farmer?: Farmer
+}
 
-  useEffect(() => {
-    const fetchUserName = async () => {
-      const name = await AsyncStorage.getItem('user_name');
-      setUserName(name);
-    };
-
-    fetchUserName();
-  }, []);
-useEffect(() => {
-  const fetchUserName = async () => {
-    const name = await AsyncStorage.getItem('user_name');
-    console.log("Loaded user_name:", name); // ✅ Debug
-    setUserName(name);
-  };
-
-  fetchUserName();
-}, []);
+const Dashboard: React.FC<DashboardProps> = ({ predictions, farmer }) => {
+  
   return (
-    <SafeAreaView className="flex-1 bg-white dark:bg-black">
-      <View className="flex-1 bg-white/40 dark:bg-black/70 px-4">
-        {/* User greeting */}
-        {userName && (
-          <Text className="text-xl font-semibold text-center text-black dark:text-white mt-4">
-            Welcome, {userName} 👋
-          </Text>
+    <SafeAreaView className="flex-1 bg-white">
+      <ScrollView className="p-4">
+        <Text className="text-2xl font-bold mb-4">Dashboard</Text>
+
+        {farmer && (
+          <View className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+            <Text className="text-xl font-semibold mb-2">Farmer Information</Text>
+            <Text className="text-base">Name: {farmer.name}</Text>
+            <Text className="text-base">Location: {farmer.location}</Text>
+            <Text className="text-base">Farm Size: {farmer.farm_size_acres} acres</Text>
+          </View>
         )}
-        <Text>{userName}</Text>
-        <Text className="text-2xl font-bold mb-4 text-center text-black dark:text-white mt-2">
-          Dashboard
-        </Text>
 
-        <View className="bg-white/90 dark:bg-zinc-800/90 p-4 rounded-2xl mb-4 shadow-md">
-          <Text className="text-lg font-semibold mb-2 text-black dark:text-white">Current Weather</Text>
-          <Text className="text-base text-gray-600 dark:text-gray-300">
-            {dummyData.weather.temperature}°C - {dummyData.weather.condition}
-          </Text>
-        </View>
+        <View className="flex-row flex-wrap justify-between">
+          <View className="w-1/2 p-2">
+            <View className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <Text className="text-lg font-semibold">Recommended Crop</Text>
+              <Text className="text-base">{predictions.recommended_crop}</Text>
+            </View>
+          </View>
 
-        <View className="bg-white/90 dark:bg-zinc-800/90 p-4 rounded-2xl mb-4 shadow-md">
-          <Text className="text-lg font-semibold mb-2 text-black dark:text-white">Pest Risk</Text>
-          <Text className="text-base text-red-600 dark:text-red-400 mb-2">{dummyData.pestRisk}%</Text>
-          <View className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-4">
-            <View
-              className="bg-red-500 dark:bg-red-400 h-4 rounded-full"
-              style={{ width: `${dummyData.pestRisk}%` }}
-            />
+          <View className="w-1/2 p-2">
+            <View className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <Text className="text-lg font-semibold">Yield Prediction</Text>
+              <Text className="text-base">{predictions.yield_prediction_kg_acre} kg/acre</Text>
+            </View>
+          </View>
+
+          <View className="w-full p-2">
+            <View className="bg-red-50 p-4 rounded-lg border border-red-200">
+              <Text className="text-lg font-semibold">Pest Risk</Text>
+              <Text className="text-base">{predictions.pest_risk_percent}%</Text>
+            </View>
+          </View>
+
+          <View className="w-1/2 p-2">
+            <View className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <Text className="text-lg font-semibold">Quality Score</Text>
+              <Text className="text-base">{predictions.quality_grading_score}</Text>
+            </View>
+          </View>
+
+          <View className="w-1/2 p-2">
+            <View className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <Text className="text-lg font-semibold">Price Range</Text>
+              <Text className="text-base">
+                {predictions.price_range_per_quintal.crop_name}: ₹{predictions.price_range_per_quintal.min_price} - ₹{predictions.price_range_per_quintal.max_price}
+              </Text>
+            </View>
+          </View>
+
+          <View className="w-full p-2">
+            <View className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <Text className="text-lg font-semibold">Applicable Schemes</Text>
+              {predictions.applicable_schemes.length > 0 ? (
+                predictions.applicable_schemes.map((scheme, index) => (
+                  <Text key={index} className="text-base">- {scheme}</Text>
+                ))
+              ) : (
+                <Text className="text-base">None</Text>
+              )}
+            </View>
+          </View>
+
+          <View className="w-full p-2">
+            <View className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
+              <Text className="text-lg font-semibold">Applied Schemes</Text>
+              {predictions.applied_schemes.length > 0 ? (
+                predictions.applied_schemes.map((scheme, index) => (
+                  <Text key={index} className="text-base">- {scheme}</Text>
+                ))
+              ) : (
+                <Text className="text-base">None</Text>
+              )}
+            </View>
           </View>
         </View>
-
-        <View className="bg-white/90 dark:bg-zinc-800/90 p-4 rounded-2xl mb-4 shadow-md">
-          <Text className="text-lg font-semibold mb-2 text-black dark:text-white">Grading Factor</Text>
-          <Text className="text-base text-gray-600 dark:text-gray-300">{dummyData.gradingFactor}/10</Text>
-        </View>
-
-        <View className="bg-white/90 dark:bg-zinc-800/90 p-4 rounded-2xl mb-4 shadow-md">
-          <Text className="text-lg font-semibold mb-2 text-black dark:text-white">Crop Price</Text>
-          <Text className="text-base text-green-600 dark:text-green-400">${dummyData.cropPrice} per unit</Text>
-        </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard

@@ -18,24 +18,32 @@ export const NotificationModal = ({
 }) => {
   const [alerts, setAlerts] = useState<AlertType[]>([]);
   const [selectedAlert, setSelectedAlert] = useState<AlertWithIndex | null>(null);
-
+  // const [first, setfirst] = useState(second)
   useEffect(() => {
-    const getAlerts = async () => {
-      const { mockAlerts } = await import("@/data/data");
-      setAlerts(mockAlerts);
+    const getNotifications = async () => {
+      try {
+        const response = await fetch("https://farmvichardatabase.onrender.com/api/users/h8BfY08KoqFKxNOoQc9o/alerts/");
+        const data = await response.json();
+        setAlerts(data);
+        // console.log(response, data)
+      } catch (error) {
+        console.error("Failed to fetch notifications:", error);
+      }
     };
-
-    getAlerts();
+    getNotifications();
   }, []);
 
+
   const handleAlertPress = (alert: AlertType, index: number) => {
-    setSelectedAlert({ ...alert, index });
+    // Mark the alert as read
+    setAlerts((prev) =>
+      prev.map((a, i) => (i === index ? { ...a, status: "read" } : a))
+    );
+    setSelectedAlert({ ...alert, index, status: "read" });
   };
 
   const closeDetail = () => {
-    if (selectedAlert) {
-      setAlerts((prev) => prev.filter((_, i) => i !== selectedAlert.index));
-    }
+    // Do not remove the alert from the list, just close the detail modal
     setSelectedAlert(null);
   };
 
@@ -67,50 +75,51 @@ export const NotificationModal = ({
 
         {/* Main Content */}
         <ScrollView className="flex-1 px-4 py-2">
-          {alerts.length > 0 ? (
+          {alerts ? (
             alerts.map((alert, index) => (
               <TouchableOpacity
                 key={index}
                 onPress={() => handleAlertPress(alert, index)}
-                className={`p-4 mb-3 rounded-2xl shadow-sm border 
+                className={`p-4 mb-3 rounded-2xl shadow-sm border
                   ${
                     isDark
                       ? "bg-neutral-900 border-neutral-700"
                       : "bg-white border-gray-200"
                   }
+                  ${alert.status === "read" ? "opacity-50" : ""}
                 `}
               >
                 <View className="flex-row justify-between items-center mb-2">
                   <Text
-                    className={`text-xs font-semibold px-2 py-1 rounded-full 
+                    className={`text-xs font-semibold px-2 py-1 rounded-full
                       ${
-                        alert.alertType === "weather"
+                        alert.alertType.toLowerCase() === "weather"
                           ? "bg-blue-500/20 text-blue-600 dark:text-blue-400"
                           : ""
                       }
                       ${
-                        alert.alertType === "scheme"
+                        alert.alertType.toLowerCase() === "scheme"
                           ? "bg-green-500/20 text-green-600 dark:text-green-400"
                           : ""
                       }
                       ${
-                        alert.alertType === "pest"
+                        alert.alertType.toLowerCase() === "pest"
                           ? "bg-red-500/20 text-red-600 dark:text-red-400"
                           : ""
                       }
                       ${
-                        alert.alertType === "market"
+                        alert.alertType.toLowerCase() === "market"
                           ? "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400"
                           : ""
                       }
                       ${
-                        alert.alertType === "irrigation"
+                        alert.alertType.toLowerCase() === "irrigation"
                           ? "bg-purple-500/20 text-purple-600 dark:text-purple-400"
                           : ""
                       }
                     `}
                   >
-                    {alert.alertType.toUpperCase()}
+                    {alert.alertType}
                   </Text>
                   <Ionicons
                     name="chevron-forward"

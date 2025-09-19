@@ -37,7 +37,7 @@ export const NotificationDetailModal = ({
                 isDark ? "text-white" : "text-black"
               }`}
             >
-              {alert?.alertType.toUpperCase()}
+              {alert?.alertType}
             </Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons
@@ -68,8 +68,7 @@ export const NotificationDetailModal = ({
               isDark ? "text-gray-400" : "text-gray-600"
             }`}
           >
-            Due:{" "}
-            {alert?.dueDate && new Date(alert.dueDate).toLocaleString()}
+            Due: {alert?.dueDate ? new Date(alert.dueDate).toLocaleString() : 'N/A'}
           </Text>
         </View>
       </View>

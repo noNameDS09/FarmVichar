@@ -7,24 +7,13 @@ export type DataOfLogType = {
     timestamp: string
 }
 
-export enum AlertCategory {
-  WEATHER = "weather",
-  SCHEME = "scheme",
-  PEST = "pest",
-  MARKET = "market",
-  IRRIGATION = "irrigation",
-}
-
-export enum AlertStatus {
-  UNREAD = "unread",
-  READ = "read",
-//   COMPLETED = "completed",
-}
-
 export type AlertType = {
-  alertType: AlertCategory;
+  id: string;
+  userId: string;
+  alertType: string;
   message: string;
-  dueDate: number;
-  status: AlertStatus;
+  dueDate: string | null;
+  status: string;
   priority: number;
+  createdAt: string;
 };
