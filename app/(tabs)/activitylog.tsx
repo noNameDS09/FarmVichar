@@ -1,15 +1,17 @@
-import { Text, View } from "react-native";
-
-export default function ActivityLog() {
+import { StyleSheet, Text, View } from "react-native";
+import React from "react";
+import ActivityScreen from "@/components/ActivityLog/ActivityScreen";
+import { SafeAreaView } from "react-native-safe-area-context";
+const activitylog = () => {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text className="text-2xl">Logs</Text>
-    </View>
+    <SafeAreaView className="flex-1 bg-gray-100">
+      <View className="flex-1">
+        <ActivityScreen />
+      </View>
+    </SafeAreaView>
   );
-}
+};
+
+export default activitylog;
+
+const styles = StyleSheet.create({});

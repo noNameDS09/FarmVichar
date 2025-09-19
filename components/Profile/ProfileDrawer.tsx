@@ -1,50 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Appearance, ActivityIndicator } from "react-native";
+import React from "react";
+import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTheme } from "../../hooks/useTheme";
 
 export default function ProfileDrawer({ onClose, onLogout, isLoggingOut }: { onClose: () => void; onLogout: () => void; isLoggingOut: boolean }) {
-  // Set the color scheme state to accept 'dark', 'light', or undefined initially
-  const [colorScheme, setColorSchemeState] = useState<
-    "dark" | "light" | undefined
-  >(undefined);
-
-  useEffect(() => {
-    const loadTheme = async () => {
-      const savedTheme = await AsyncStorage.getItem("theme");
-
-      if (savedTheme) {
-        setColorSchemeState(savedTheme as "dark" | "light");
-        Appearance.setColorScheme(savedTheme as "dark" | "light");
-      } else {
-        setColorSchemeState("light");
-        Appearance.setColorScheme("light");
-      }
-    };
-
-    loadTheme();
-  }, []);
-
-  // Save theme preference to AsyncStorage
-  const saveTheme = async (theme: "dark" | "light") => {
-    await AsyncStorage.setItem("theme", theme);
-  };
-
-  // Toggle between light and dark themes
-  const toggleTheme = () => {
-    const newScheme = colorScheme === "dark" ? "light" : "dark";
-    Appearance.setColorScheme(newScheme);
-    setColorSchemeState(newScheme);
-    saveTheme(newScheme); // Save the updated theme preference
-  };
+  const { colorScheme, toggleTheme } = useTheme();
 
   const Logout = async () => {
     await onLogout();
     onClose();
   };
 
-  // Render appropriate icon based on the current theme
   const themeIcon =
     colorScheme === "dark" ? (
       <Feather name="sun" size={24} color="white" />

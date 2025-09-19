@@ -18,60 +18,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Home from "../../components/Home/Home";
 import ProfileDrawer from "../../components/Profile/ProfileDrawer";
 import MyForm from "@/components/Home/Login";
-const NotificationModal = ({
-  visible,
-  onClose,
-  isDark,
-}: {
-  visible: boolean;
-  onClose: () => void;
-  isDark: boolean;
-}) => {
-  return (
-    <Modal
-      visible={visible}
-      onRequestClose={onClose}
-      animationType="slide"
-      presentationStyle="pageSheet"
-    >
-      <SafeAreaView
-        style={{ flex: 1, backgroundColor: isDark ? "black" : "white" }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            padding: 16,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: "bold",
-              color: isDark ? "white" : "black",
-            }}
-          >
-            Notifications
-          </Text>
-          <TouchableOpacity onPress={onClose}>
-            <Ionicons
-              name="close"
-              size={24}
-              color={isDark ? "#c2c2c2" : "black"}
-            />
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text style={{ color: isDark ? "gray" : "black" }}>
-            No new notifications
-          </Text>
-        </View>
-      </SafeAreaView>
-    </Modal>
-  );
-};
+import { NotificationModal } from "@/components/Notifications/NotificationModal";
 
 export default function HomeScreen() {
   const scheme = useColorScheme();
@@ -84,9 +31,13 @@ export default function HomeScreen() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const renderDrawer = () => (
-    <ProfileDrawer onClose={() => drawerRef.current?.closeDrawer()} onLogout={handleLogout} isLoggingOut={isLoggingOut} />
+    <ProfileDrawer
+      onClose={() => drawerRef.current?.closeDrawer()}
+      onLogout={handleLogout}
+      isLoggingOut={isLoggingOut}
+    />
   );
-  
+
   const checkLoginStatus = async () => {
     const token = await AsyncStorage.getItem("access_token");
     const userName = await AsyncStorage.getItem("user_name");
@@ -102,7 +53,7 @@ export default function HomeScreen() {
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay to simulate logout
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay to simulate logout
     await AsyncStorage.removeItem("access_token");
     await AsyncStorage.removeItem("user_name");
     setIsLoggedIn(false);
@@ -143,13 +94,20 @@ export default function HomeScreen() {
                   alignItems: "center",
                 }}
               >
-                <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(true)}
+                  className="relative border rounded-full p-1 border-gray-300"
+                >
                   <Ionicons
                     name="notifications"
                     size={25}
-                    color={isDark ? "#c2c2c2" : "black"}
+                    color={isDark ? "#c2c2c2" : "#4a4b4d"}
                   />
+
+                  {/* 🔴 Notification badge */}
+                  <View className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500" />
                 </TouchableOpacity>
+
                 <Text
                   style={{
                     fontSize: 24,
@@ -165,7 +123,7 @@ export default function HomeScreen() {
                   <Ionicons
                     name="person-circle-outline"
                     size={35}
-                    color={isDark ? "#c2c2c2" : "black"}
+                    color={isDark ? "#c2c2c2" : "#212121"}
                   />
                 </TouchableOpacity>
               </View>
