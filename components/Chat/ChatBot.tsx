@@ -18,6 +18,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
+// import { LinearGradient } from 'expo-linear-gradient';
 
 const ChatbotScreen = () => {
   const scheme = useColorScheme();
@@ -31,11 +32,11 @@ const ChatbotScreen = () => {
   ); // Using a Map to store audio states by message ID
 
   const getStyles = (isDark: boolean) => StyleSheet.create({
-    container: { flex: 1, backgroundColor: isDark ? '#000' : '#fff' },
+    container: { flex: 1 },
     inputContainer: {
-      backgroundColor: isDark ? '#333' : '#f1f1f1',
+      backgroundColor: isDark ? '#333' : 'transparent',
       borderTopWidth: 1,
-      borderTopColor: isDark ? '#555' : '#7bbd7c',
+      borderTopColor: isDark ? '#555' : 'lightgreen',
       paddingVertical: 6,
       paddingHorizontal: 4,
       flexDirection: 'row',
@@ -264,7 +265,7 @@ const ChatbotScreen = () => {
       <Bubble
         {...props}
         wrapperStyle={{
-          left: { backgroundColor: isDark ? '#374151' : '#e0e0e0' },
+          left: { backgroundColor: isDark ? '#374151' : '#fff' },
           right: { backgroundColor: isDark ? '#1e40af' : '#0da60d' },
         }}
         textStyle={{
@@ -327,14 +328,16 @@ const ChatbotScreen = () => {
   const renderSend = (props: any) => (
     <Send
       {...props}
-      containerStyle={{ justifyContent: "center", alignItems: "center" }}
+      containerStyle={{ justifyContent: "center", alignItems: "center",  }}
     >
       <Ionicons name="send" size={24} color={isDark ? "#67c767":"#67c767"} style={styles.sendIcon} />
     </Send>
   );
 
   return (
-    <View style={styles.container}>
+    
+      
+    <View style={styles.container} >
       <GiftedChat
         messages={messages}
         onSend={handleSend}
@@ -344,7 +347,7 @@ const ChatbotScreen = () => {
         renderSend={renderSend}
         renderAvatar={() => null}
         renderBubble={renderBubble}
-      />
+        />
     </View>
   );
 };

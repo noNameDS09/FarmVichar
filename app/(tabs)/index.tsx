@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  ActivityIndicator,
   ImageBackground,
   Modal,
   ScrollView,
@@ -12,7 +13,7 @@ import {
   useColorScheme,
   View,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
 import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Home from "../../components/Home/Home";
@@ -29,6 +30,7 @@ export default function HomeScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const renderDrawer = () => (
     <ProfileDrawer
@@ -38,7 +40,9 @@ export default function HomeScreen() {
     />
   );
 
+  // Checking the login status and setting the loading state
   const checkLoginStatus = async () => {
+    setLoading(true);
     const token = await AsyncStorage.getItem("access_token");
     const userName = await AsyncStorage.getItem("user_name");
 
@@ -49,11 +53,17 @@ export default function HomeScreen() {
       setIsLoggedIn(false);
       console.log("🔒 Not logged in");
     }
+    setLoading(false);
   };
 
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  // Handle user logout with delay simulation
   const handleLogout = async () => {
     setIsLoggingOut(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 second delay to simulate logout
+    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2-second delay to simulate logout
     await AsyncStorage.removeItem("access_token");
     await AsyncStorage.removeItem("user_name");
     setIsLoggedIn(false);
@@ -61,10 +71,21 @@ export default function HomeScreen() {
     console.log("🔒 Logged out");
   };
 
-  useEffect(() => {
-    checkLoginStatus();
-  }, []);
+  // If loading, show loading indicator
+  if (loading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <ActivityIndicator size="large" color={isDark ? "white" : "black"} />
+        <Text style={{ color: isDark ? "white" : "black" }}>
+          Fetching Your Details...
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
+  // If not logged in, show login form
   if (!isLoggedIn) {
     return <MyForm onLoginSuccess={checkLoginStatus} />;
   }
@@ -96,16 +117,31 @@ export default function HomeScreen() {
               >
                 <TouchableOpacity
                   onPress={() => setModalVisible(true)}
-                  className="relative border rounded-full p-1 border-gray-300"
+                  style={{
+                    position: "relative",
+                    borderRadius: 50,
+                    padding: 8,
+                    borderWidth: 1,
+                    borderColor: isDark ? "#c2c2c2" : "#4a4b4d",
+                  }}
                 >
                   <Ionicons
                     name="notifications"
-                    size={25}
+                    size={18}
                     color={isDark ? "#c2c2c2" : "#4a4b4d"}
                   />
-
-                  {/* 🔴 Notification badge */}
-                  <View className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500" />
+                  {/* Notification Badge */}
+                  <View
+                    style={{
+                      position: "absolute",
+                      top: -2,
+                      right: -2,
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      backgroundColor: "red",
+                    }}
+                  />
                 </TouchableOpacity>
 
                 <Text
@@ -123,10 +159,11 @@ export default function HomeScreen() {
                   <Ionicons
                     name="person-circle-outline"
                     size={35}
-                    color={isDark ? "#c2c2c2" : "#212121"}
+                    color={isDark ? "#c2c2c2" : "#333333"}
                   />
                 </TouchableOpacity>
               </View>
+
               {/* Search Bar */}
               <View
                 style={{
@@ -154,6 +191,7 @@ export default function HomeScreen() {
                   }}
                 />
               </View>
+
               {/* Weather Info */}
               <ImageBackground
                 source={{
@@ -161,10 +199,10 @@ export default function HomeScreen() {
                 }}
                 style={{
                   width: "100%",
-                  height: 300, // Adjust this to fit your needs
+                  height: 300,
                   borderRadius: 15,
                   marginTop: 20,
-                  overflow: "hidden", // Ensures children respect borderRadius
+                  overflow: "hidden",
                 }}
                 resizeMode="cover"
               >
@@ -174,7 +212,7 @@ export default function HomeScreen() {
                     flex: 1,
                     backgroundColor: isDark
                       ? "rgba(45,45,45,0.7)"
-                      : "rgba(245,245,245,0.5)", // semi-transparent background
+                      : "rgba(245,245,245,0.5)",
                     padding: 24,
                     justifyContent: "center",
                     alignItems: "center",
@@ -182,7 +220,6 @@ export default function HomeScreen() {
                 >
                   <Text
                     style={{ fontSize: 18, color: isDark ? "white" : "black" }}
-                    className="font-bold "
                   >
                     Kochi
                   </Text>
@@ -192,7 +229,6 @@ export default function HomeScreen() {
                       fontWeight: "bold",
                       color: isDark ? "white" : "black",
                     }}
-                    className="font-bold"
                   >
                     25°C
                   </Text>
@@ -201,9 +237,7 @@ export default function HomeScreen() {
                       marginTop: 8,
                       fontSize: 16,
                       color: isDark ? "lightgray" : "#4F200D",
-                      // fontWeight: "800"
                     }}
-                    className="font-bold"
                   >
                     Mostly sunny
                   </Text>
@@ -215,19 +249,20 @@ export default function HomeScreen() {
                       color: isDark ? "white" : "#4F200D",
                       textAlign: "center",
                     }}
-                    className="font-bold"
                   >
-                    "Keep your paddy well-watered on sunny days to protect the
-                    crop"
+                    "Keep your paddy well-watered on sunny days to protect the crop"
                   </Text>
                 </View>
               </ImageBackground>
+
+              {/* Home Component */}
               <Home />
             </View>
           </ScrollView>
         </SafeAreaView>
       </DrawerLayout>
 
+      {/* Notification Modal */}
       <NotificationModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}

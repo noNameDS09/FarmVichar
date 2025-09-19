@@ -16,6 +16,7 @@ export default function RootLayout() {
           screenOptions={{
             tabBarActiveTintColor: "green",
             tabBarStyle: { backgroundColor: colorScheme === "dark" ? "#18181b" : "#ffffff" },
+            
           }}
         >
           <Tabs.Screen
