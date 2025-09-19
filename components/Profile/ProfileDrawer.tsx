@@ -3,9 +3,11 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useTheme } from "../../hooks/useTheme";
+import { useRouter } from "expo-router";
 
 export default function ProfileDrawer({ onClose, onLogout, isLoggingOut }: { onClose: () => void; onLogout: () => void; isLoggingOut: boolean }) {
   const { colorScheme, toggleTheme } = useTheme();
+  const router = useRouter();
 
   const Logout = async () => {
     await onLogout();
@@ -30,7 +32,10 @@ export default function ProfileDrawer({ onClose, onLogout, isLoggingOut }: { onC
 
       <TouchableOpacity
         className="mb-4"
-        onPress={() => alert("Profile pressed")}
+        onPress={() => {
+          onClose();
+          router.push("/profile");
+        }}
       >
         <Text className="text-lg text-black dark:text-white">Profile</Text>
       </TouchableOpacity>

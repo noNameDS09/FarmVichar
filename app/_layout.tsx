@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import React, { useEffect, useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import MyForm from "@/components/Home/Login";
+import LoginForm from "@/components/Forms/LoginForm";
 import { View, ActivityIndicator, Text } from "react-native";
 
 export default function RootLayout() {
@@ -38,7 +38,7 @@ export default function RootLayout() {
   }
 
   if (!isLoggedIn) {
-    return <MyForm onLoginSuccess={checkLoginStatus} />;
+    return <LoginForm onLoginSuccess={checkLoginStatus} />;
   }
 
   return (

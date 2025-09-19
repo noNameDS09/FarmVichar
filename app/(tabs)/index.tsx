@@ -1,25 +1,25 @@
+import LoginForm from "@/components/Forms/LoginForm";
+import { NotificationModal } from "@/components/Notifications/NotificationModal";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "expo-router";
 import {
   ActivityIndicator,
   ImageBackground,
-  Modal,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   useColorScheme,
-  View,
+  View
 } from "react-native";
-import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Home from "../../components/Home/Home";
 import ProfileDrawer from "../../components/Profile/ProfileDrawer";
-import MyForm from "@/components/Home/Login";
-import { NotificationModal } from "@/components/Notifications/NotificationModal";
 
 export default function HomeScreen() {
   const scheme = useColorScheme();
@@ -31,6 +31,7 @@ export default function HomeScreen() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const renderDrawer = () => (
     <ProfileDrawer
@@ -87,7 +88,7 @@ export default function HomeScreen() {
 
   // If not logged in, show login form
   if (!isLoggedIn) {
-    return <MyForm onLoginSuccess={checkLoginStatus} />;
+    return <LoginForm onLoginSuccess={checkLoginStatus} />;
   }
 
   return (
@@ -154,7 +155,14 @@ export default function HomeScreen() {
                   KrishiVichar
                 </Text>
                 <TouchableOpacity
-                  onPress={() => drawerRef.current?.openDrawer()}
+                  onPress={async () => {
+                    const profileInfo = await AsyncStorage.getItem("profile_info");
+                    if (profileInfo) {
+                      drawerRef.current?.openDrawer();
+                    } else {
+                      router.push("/profile");
+                    }
+                  }}
                 >
                   <Ionicons
                     name="person-circle-outline"

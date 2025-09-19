@@ -1,36 +1,47 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import React from "react";
-import { View, Text, TextInput, Button, Alert, StyleSheet, ScrollView } from "react-native";
-import { useForm, Controller } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+import { Alert, Button, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 
-export default function MyForm() {
+export default function MyForm({ onSubmitSuccess }: { onSubmitSuccess?: () => void }) {
+  const router = useRouter();
   const { control, handleSubmit, reset } = useForm({
     defaultValues: {
-      name: "",
+      fullName: "",
       phone: "",
       age: "",
-      education: "",
-      experience: "",
       gender: "",
+      preferredLanguage: "Malayalam",
+      educationLevel: "",
+      farmingExperienceYears: "",
+      password: "",
     },
   });
 
-  const onSubmit = (data: any) => {
+  const onSubmit = async (data: any) => {
     console.log(data);
-    Alert.alert("Form Submitted", JSON.stringify(data, null, 2));
+    await AsyncStorage.setItem("profile_info", JSON.stringify(data));
+    Alert.alert("Form Submitted", "Profile information saved successfully!");
     reset();
+    if (onSubmitSuccess) {
+      onSubmitSuccess();
+    } else {
+      router.back();
+    }
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* Name */}
-      <Text style={styles.label}>Name</Text>
+      {/* Full Name */}
+      <Text style={styles.label}>Full Name</Text>
       <Controller
         control={control}
-        name="name"
+        name="fullName"
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
-            placeholder="Enter name"
+            placeholder="Enter full name"
             value={value}
             onChangeText={onChange}
           />
@@ -69,15 +80,15 @@ export default function MyForm() {
         )}
       />
 
-      {/* Education */}
-      <Text style={styles.label}>Education</Text>
+      {/* Education Level */}
+      <Text style={styles.label}>Education Level</Text>
       <Controller
         control={control}
-        name="education"
+        name="educationLevel"
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
-            placeholder="Enter educational qualifications"
+            placeholder="Enter education level"
             value={value}
             onChangeText={onChange}
           />
@@ -88,7 +99,7 @@ export default function MyForm() {
       <Text style={styles.label}>Farming Experience (Years)</Text>
       <Controller
         control={control}
-        name="experience"
+        name="farmingExperienceYears"
         render={({ field: { onChange, value } }) => (
           <TextInput
             style={styles.input}
@@ -118,6 +129,37 @@ export default function MyForm() {
       <View style={{ marginTop: 20 }}>
         <Button title="Submit" onPress={handleSubmit(onSubmit)} />
       </View>
+
+      {/* Preferred Language */}
+      <Text style={styles.label}>Preferred Language</Text>
+      <Controller
+        control={control}
+        name="preferredLanguage"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Preferred Language"
+            value={value}
+            onChangeText={onChange}
+          />
+        )}
+      />
+
+      {/* Password */}
+      <Text style={styles.label}>Password</Text>
+      <Controller
+        control={control}
+        name="password"
+        render={({ field: { onChange, value } }) => (
+          <TextInput
+            style={styles.input}
+            placeholder="Enter password"
+            value={value}
+            onChangeText={onChange}
+            secureTextEntry={true}
+          />
+        )}
+      />
     </ScrollView>
   );
 }

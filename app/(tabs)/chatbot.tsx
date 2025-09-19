@@ -3,6 +3,7 @@ import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import ChatbotScreen from "@/components/Chat/ChatBot";
 import { LinearGradient } from "expo-linear-gradient";
+import Chat from "@/components/Chat/Chat";
 const chatbot = () => {
   return (
     <LinearGradient
@@ -12,7 +13,8 @@ const chatbot = () => {
       <SafeAreaView style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
           {/* <Text>chatbot</Text> */}
-          <ChatbotScreen />
+          {/* <ChatbotScreen /> */}
+          <Chat />
           {/* <Text>chatbot</Text> */}
         </View>
       </SafeAreaView>
@@ -23,3 +25,4 @@ const chatbot = () => {
 export default chatbot;
 
 const styles = StyleSheet.create({});
+// 65a66b
