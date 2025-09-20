@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "KrishiVichar",
+    "name": "FarmVichar",
     "slug": "frontend",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.jpg",
+    "icon": "./assets/images/image.png",
     "scheme": "krishivichar",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,

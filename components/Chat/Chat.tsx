@@ -25,6 +25,7 @@ type Message = {
   audioUri?: string;
   createdAt: Date;
   userId: number;
+  language?: string;
 };
 
 const Chat = () => {
@@ -35,6 +36,7 @@ const Chat = () => {
   const [isSending, setIsSending] = useState(false);
   const [playingSound, setPlayingSound] = useState<Audio.Sound | null>(null);
   const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("ml");
 
   const flatListRef = useRef<FlatList>(null);
 
@@ -103,7 +105,7 @@ const Chat = () => {
       const uri = recording.getURI();
       setRecording(null);
       if (uri) {
-        sendMessage({ audioUri: uri });
+        sendMessage({ audioUri: uri, language: selectedLanguage });
       }
     } catch (error) {
       Alert.alert("Error", "Failed to stop recording.");
@@ -129,14 +131,16 @@ const Chat = () => {
       audioUri: messageData.audioUri,
       createdAt: new Date(),
       userId: 1,
+      language: messageData.language || selectedLanguage,
     };
 
     setMessages((prev) => [newMessage, ...prev]);
     setInputText("");
-    setPendingImage(null); // Prepare form data for API
+    setPendingImage(null);
 
     const formData = new FormData();
     formData.append("text_query", newMessage.text || "Audio message or Image");
+    formData.append("language_code", newMessage.language || "ml");
 
     if (newMessage.imageUri) {
       const uriParts = newMessage.imageUri.split(".");
@@ -149,26 +153,18 @@ const Chat = () => {
     }
 
     if (newMessage.audioUri) {
-      // Get the file extension and construct a correct MIME type
       const uriParts = newMessage.audioUri.split(".");
       const fileType = uriParts[uriParts.length - 1];
       const mimeType = `audio/${fileType}`;
 
-      // Read the audio file as base64 and send as a string
-      try {
-        const base64Audio = await FileSystem.readAsStringAsync(newMessage.audioUri, {
-          encoding: 'base64',
-        });
-
-        formData.append("audio_base64", base64Audio);
-        formData.append("audio_name", `audio_${Date.now()}.${fileType}`);
-        formData.append("audio_type", mimeType);
-      } catch (error) {
-        console.error("Failed to encode audio file to base64:", error as Error);
-        Alert.alert("Error", `Failed to encode audio file: ${(error as Error).message}`);
-      }
+      // Append audio file as binary
+      formData.append("audio_file", {
+        uri: newMessage.audioUri,
+        name: `audio_${Date.now()}.${fileType}`,
+        type: mimeType,
+      } as any);
     }
-    // ... rest of the code is the same
+
     try {
       const response = await fetch(
         "https://farmvichar-ml.onrender.com/chat/h8BfY08KoqFKxNOoQc9o",
@@ -176,10 +172,7 @@ const Chat = () => {
           method: "POST",
           body: formData,
           headers: {
-            // This header is important for a fetch call with FormData
-            // but React Native's fetch might handle it automatically.
-            // Explicitly adding it can help with some backends.
-            // 'Content-Type': 'multipart/form-data',
+            // 'Content-Type': 'multipart/form-data', // Let fetch handle this automatically
           },
         }
       );
@@ -197,7 +190,6 @@ const Chat = () => {
       };
       setMessages((prev) => [botMessage, ...prev]);
       flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
-      // console.log(messages)
     } catch (error) {
       console.error("Failed to send message:", error);
       Alert.alert("Error", `Failed to send message: ${(error as Error).message}`);
@@ -348,13 +340,27 @@ const Chat = () => {
         </TouchableOpacity>
         <TextInput
           style={styles.textInput}
-          placeholder="Type a message..."
+          placeholder={
+            selectedLanguage === "ml"
+              ? "സന്ദേശം ടൈപ്പ് ചെയ്യൂ..."
+              : "Type a message..."
+          }
           value={inputText}
           onChangeText={setInputText}
           multiline
         />
         <TouchableOpacity
-          onPress={() => sendMessage()}
+          onPress={() => {
+            setSelectedLanguage(selectedLanguage === "ml" ? "en" : "ml");
+          }}
+          style={styles.languageButton}
+        >
+          <Text style={styles.languageText}>
+            {selectedLanguage === "ml" ? "EN" : "ML"}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => sendMessage({ language: selectedLanguage })}
           style={styles.sendButton}
         >
           {isSending ? (
@@ -407,7 +413,7 @@ const styles = StyleSheet.create({
   audioButton: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 12,
+    paddingHorizontal: 4,
     paddingVertical: 8,
     borderRadius: 20,
   },
@@ -423,7 +429,7 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     flexDirection: "row",
-    paddingHorizontal: 12,
+    paddingHorizontal: 0,
     paddingVertical: 8,
     alignItems: "center",
     backgroundColor: "#fff",
@@ -443,7 +449,7 @@ const styles = StyleSheet.create({
   sendButton: {
     backgroundColor: "#0078fe",
     borderRadius: 20,
-    padding: 8,
+    padding: 5,
   },
   iconButton: {
     padding: 6,
@@ -464,6 +470,17 @@ const styles = StyleSheet.create({
   },
   removeImageButton: {
     marginLeft: 12,
+  },
+  languageButton: {
+    backgroundColor: "#0078fe",
+    borderRadius: 20,
+    padding: 5,
+    marginRight: 8,
+  },
+  languageText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 

@@ -1,27 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import Dashboard from '@/components/Dashboard/Dashboard';
-import ProfileDrawer from '@/components/Profile/ProfileDrawer';
-
-const mockPredictions = {
-  recommended_crop: 'Wheat',
-  yield_prediction_kg_acre: 2500,
-  pest_risk_percent: 15,
-  quality_grading_score: 85,
-  price_range_per_quintal: {
-    crop_name: 'Wheat',
-    min_price: 1800,
-    max_price: 2200,
-  },
-  applicable_schemes: ['PM-KISAN', 'Soil Health Card'],
-  applied_schemes: ['PM-KISAN'],
-};
-
-// const mockFarmer = {
-//   name: 'Rajesh Kumar',
-//   location: 'Punjab, India',
-//   farm_size_acres: 5,
-// };
-
+import React, { useEffect, useState } from "react";
+import Dashboard from "@/components/Dashboard/Dashboard";
+import { Text } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 interface BackendResponse {
   user_profile: Record<string, any>;
   weather: Record<string, any>;
@@ -40,28 +20,42 @@ interface BackendResponse {
   };
 }
 
-export default function DashboardScreen() {
+export default function App() {
   const [data, setData] = useState<BackendResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const getFarmerDetails = async () => {
       try {
-        const response = await fetch(`https://farmvichar-ml.onrender.com/dashboard/h8BfY08KoqFKxNOoQc9o`);
+        const response = await fetch(
+          `https://farmvichar-ml.onrender.com/dashboard/h8BfY08KoqFKxNOoQc9o`
+        );
         if (response.ok) {
           const data_ = await response.json();
           setData(data_);
+        } else {
+          console.error("Failed to fetch data", response.statusText);
         }
-        console.log(data)
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
     getFarmerDetails();
   }, []);
 
-  if (!data) {
-    return <Dashboard predictions={mockPredictions}  />;
+  // Show a loading state while fetching data
+  if (loading) {
+    return <SafeAreaView className="flex-1 items-center justify-center"><Text className="flex-1 items-center justify-center">Loading...</Text></SafeAreaView>; // Or you can replace it with a loader/spinner component
   }
 
-  return <Dashboard predictions={data.predictions}  />;
+  // If there's no data or an error in fetching, handle it gracefully
+  if (!data) {
+    return <Text>Error loading data. Please try again later.</Text>;
+  }
+
+  return (
+    <Dashboard predictions={data.predictions} />
+  );
 }

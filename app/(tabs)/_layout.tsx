@@ -1,10 +1,10 @@
-import '../../global.css'
 import { FontAwesome } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Tabs } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
+import '../../global.css';
 
 export default function RootLayout() {
   const { colorScheme } = useColorScheme();
@@ -53,7 +53,7 @@ export default function RootLayout() {
             name="dashboard"
             options={{
               title: "Dashboard",
-              headerShown: false,
+              headerShown: false, // This should be the only definition for the dashboard tab
               tabBarIcon: ({ color }) => (
                 <MaterialIcons size={28} name="dashboard" color={color} />
               ),

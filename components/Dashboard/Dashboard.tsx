@@ -30,84 +30,81 @@ interface DashboardProps {
 }
 
 const Dashboard: React.FC<DashboardProps> = ({ predictions, farmer }) => {
-  
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ScrollView className="p-4">
         <Text className="text-2xl font-bold mb-4">Dashboard</Text>
 
-        {farmer && (
-          <View className="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
-            <Text className="text-xl font-semibold mb-2">Farmer Information</Text>
-            <Text className="text-base">Name: {farmer.name}</Text>
-            <Text className="text-base">Location: {farmer.location}</Text>
-            <Text className="text-base">Farm Size: {farmer.farm_size_acres} acres</Text>
+        {/* Sowed Crop */}
+        <View className="flex-row mb-4">
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4 mr-2">
+            <Text className="text-base font-medium text-green-800">Sowed Crop</Text>
           </View>
-        )}
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4">
+            <Text className="text-lg">{predictions.recommended_crop}</Text>
+          </View>
+        </View>
 
-        <View className="flex-row flex-wrap justify-between">
-          <View className="w-1/2 p-2">
-            <View className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <Text className="text-lg font-semibold">Recommended Crop</Text>
-              <Text className="text-base">{predictions.recommended_crop}</Text>
-            </View>
+        {/* Pest Risks */}
+        <View className="flex-row mb-4">
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4 mr-2">
+            <Text className="text-base font-medium text-green-800">Pest Risks</Text>
           </View>
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4">
+            <Text className="text-lg">{predictions.pest_risk_percent}%</Text>
+          </View>
+        </View>
 
-          <View className="w-1/2 p-2">
-            <View className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <Text className="text-lg font-semibold">Yield Prediction</Text>
-              <Text className="text-base">{predictions.yield_prediction_kg_acre} kg/acre</Text>
-            </View>
+        {/* Grading Score */}
+        <View className="flex-row mb-4">
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4 mr-2">
+            <Text className="text-base font-medium text-green-800">Grading Score</Text>
           </View>
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4">
+            <Text className="text-lg">{predictions.quality_grading_score}</Text>
+          </View>
+        </View>
 
-          <View className="w-full p-2">
-            <View className="bg-red-50 p-4 rounded-lg border border-red-200">
-              <Text className="text-lg font-semibold">Pest Risk</Text>
-              <Text className="text-base">{predictions.pest_risk_percent}%</Text>
-            </View>
+        {/* Price Range */}
+        <View className="flex-row mb-4">
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4 mr-2">
+            <Text className="text-base font-medium text-green-800">Price Range</Text>
           </View>
+          <View className="flex-1 bg-green-50 border border-green-200 rounded-xl p-4">
+            <Text className="text-lg">
+              {predictions.price_range_per_quintal.crop_name}: ₹
+              {predictions.price_range_per_quintal.min_price} - ₹
+              {predictions.price_range_per_quintal.max_price}
+            </Text>
+          </View>
+        </View>
 
-          <View className="w-1/2 p-2">
-            <View className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-              <Text className="text-lg font-semibold">Quality Score</Text>
-              <Text className="text-base">{predictions.quality_grading_score}</Text>
-            </View>
-          </View>
+        {/* Applicable Schemes */}
+        <View className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+          <Text className="text-base font-medium text-green-800 mb-2">
+            Applicable Schemes
+          </Text>
+          {predictions.applicable_schemes.length > 0 ? (
+            predictions.applicable_schemes.map((scheme, index) => (
+              <Text key={index} className="text-lg">- {scheme}</Text>
+            ))
+          ) : (
+            <Text className="text-lg">None</Text>
+          )}
+        </View>
 
-          <View className="w-1/2 p-2">
-            <View className="bg-green-50 p-4 rounded-lg border border-green-200">
-              <Text className="text-lg font-semibold">Price Range</Text>
-              <Text className="text-base">
-                {predictions.price_range_per_quintal.crop_name}: ₹{predictions.price_range_per_quintal.min_price} - ₹{predictions.price_range_per_quintal.max_price}
-              </Text>
-            </View>
-          </View>
-
-          <View className="w-full p-2">
-            <View className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <Text className="text-lg font-semibold">Applicable Schemes</Text>
-              {predictions.applicable_schemes.length > 0 ? (
-                predictions.applicable_schemes.map((scheme, index) => (
-                  <Text key={index} className="text-base">- {scheme}</Text>
-                ))
-              ) : (
-                <Text className="text-base">None</Text>
-              )}
-            </View>
-          </View>
-
-          <View className="w-full p-2">
-            <View className="bg-indigo-50 p-4 rounded-lg border border-indigo-200">
-              <Text className="text-lg font-semibold">Applied Schemes</Text>
-              {predictions.applied_schemes.length > 0 ? (
-                predictions.applied_schemes.map((scheme, index) => (
-                  <Text key={index} className="text-base">- {scheme}</Text>
-                ))
-              ) : (
-                <Text className="text-base">None</Text>
-              )}
-            </View>
-          </View>
+        {/* Applied Schemes */}
+        <View className="bg-green-50 border border-green-200 rounded-xl p-4 mb-4">
+          <Text className="text-base font-medium text-green-800 mb-2">
+            Applied Schemes
+          </Text>
+          {predictions.applied_schemes.length > 0 ? (
+            predictions.applied_schemes.map((scheme, index) => (
+              <Text key={index} className="text-lg">- {scheme}</Text>
+            ))
+          ) : (
+            <Text className="text-lg">None</Text>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

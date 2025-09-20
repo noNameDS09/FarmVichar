@@ -1,23 +1,20 @@
-import LoginForm from "@/components/Forms/LoginForm";
 import { NotificationModal } from "@/components/Notifications/NotificationModal";
 import { Ionicons } from "@expo/vector-icons";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { useRouter } from "expo-router";
 import {
-  ActivityIndicator,
   ImageBackground,
   ScrollView,
   Text,
   TextInput,
   TouchableOpacity,
   useColorScheme,
-  View
+  View,
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 import Home from "../../components/Home/Home";
 import ProfileDrawer from "../../components/Profile/ProfileDrawer";
 
@@ -28,68 +25,15 @@ export default function HomeScreen() {
   const drawerRef = useRef<DrawerLayout>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [loading, setLoading] = useState<boolean>(false);
   const router = useRouter();
 
   const renderDrawer = () => (
     <ProfileDrawer
       onClose={() => drawerRef.current?.closeDrawer()}
-      onLogout={handleLogout}
-      isLoggingOut={isLoggingOut}
+      onLogout={() => console.log("🔒 Logout handled in ProfileDrawer")}
+      isLoggingOut={false}
     />
   );
-
-  // Checking the login status and setting the loading state
-  const checkLoginStatus = async () => {
-    setLoading(true);
-    const token = await AsyncStorage.getItem("access_token");
-    const userName = await AsyncStorage.getItem("user_name");
-
-    if (token) {
-      setIsLoggedIn(true);
-      console.log("✅ Logged in as:", userName);
-    } else {
-      setIsLoggedIn(false);
-      console.log("🔒 Not logged in");
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    checkLoginStatus();
-  }, []);
-
-  // Handle user logout with delay simulation
-  const handleLogout = async () => {
-    setIsLoggingOut(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // 2-second delay to simulate logout
-    await AsyncStorage.removeItem("access_token");
-    await AsyncStorage.removeItem("user_name");
-    setIsLoggedIn(false);
-    setIsLoggingOut(false);
-    console.log("🔒 Logged out");
-  };
-
-  // If loading, show loading indicator
-  if (loading) {
-    return (
-      <SafeAreaView
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <ActivityIndicator size="large" color={isDark ? "white" : "black"} />
-        <Text style={{ color: isDark ? "white" : "black" }}>
-          Fetching Your Details...
-        </Text>
-      </SafeAreaView>
-    );
-  }
-
-  // If not logged in, show login form
-  if (!isLoggedIn) {
-    return <LoginForm onLoginSuccess={checkLoginStatus} />;
-  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -131,7 +75,6 @@ export default function HomeScreen() {
                     size={18}
                     color={isDark ? "#c2c2c2" : "#4a4b4d"}
                   />
-                  {/* Notification Badge */}
                   <View
                     style={{
                       position: "absolute",
@@ -152,16 +95,12 @@ export default function HomeScreen() {
                     color: isDark ? "white" : "black",
                   }}
                 >
-                  KrishiVichar
+                  FarmVichar
                 </Text>
+
                 <TouchableOpacity
-                  onPress={async () => {
-                    const profileInfo = await AsyncStorage.getItem("profile_info");
-                    if (profileInfo) {
-                      drawerRef.current?.openDrawer();
-                    } else {
-                      router.push("/profile");
-                    }
+                  onPress={() => {
+                    drawerRef.current?.openDrawer();
                   }}
                 >
                   <Ionicons
@@ -189,7 +128,7 @@ export default function HomeScreen() {
                   color={isDark ? "gray" : "black"}
                 />
                 <TextInput
-                  placeholder="Upcoming krishi schemes..."
+                  placeholder="Upcoming Farm schemes..."
                   placeholderTextColor={isDark ? "gray" : "black"}
                   style={{
                     flex: 1,
@@ -203,18 +142,17 @@ export default function HomeScreen() {
               {/* Weather Info */}
               <ImageBackground
                 source={{
-                  uri: "https://plus.unsplash.com/premium_vector-1723658879791-519ef702df40?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+                  uri: "https://plus.unsplash.com/premium_vector-1723658879791-519ef702df40?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0",
                 }}
                 style={{
                   width: "100%",
-                  height: 300,
+                  height: 400,
                   borderRadius: 15,
                   marginTop: 20,
                   overflow: "hidden",
                 }}
                 resizeMode="cover"
               >
-                {/* Overlay: Location and Weather Details */}
                 <View
                   style={{
                     flex: 1,
@@ -270,7 +208,6 @@ export default function HomeScreen() {
         </SafeAreaView>
       </DrawerLayout>
 
-      {/* Notification Modal */}
       <NotificationModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}

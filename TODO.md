@@ -1,12 +1,6 @@
-# TODO: Implement Custom Chatbot in Chat.tsx
+# TODO: Fix Login Stuck Issue
 
-- [x] Set up basic component structure with FlatList for messages and input area
-- [x] Define message types and state management
-- [x] Implement text input and send functionality
-- [x] Add image picker and handle image messages
-- [x] Add audio recording and playback features
-- [x] Support combined formats (text+image, audio+text)
-- [x] Integrate with API for sending messages
-- [x] Optimize rendering and performance
-- [x] Add markdown support for structured input
-- [x] Improve keyboard handling
+- [x] Add debug logs in app/_layout.tsx checkLoginStatus to verify token storage and state updates
+- [x] Modify LoginForm.tsx to ensure onLoginSuccess callback is properly triggered and remove router.replace("/") to avoid navigation conflicts
+- [ ] Test login flow to confirm app navigates to main screen after successful login
+- [ ] If needed, add force re-render or state synchronization in root layout
