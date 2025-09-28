@@ -174,6 +174,19 @@ export default function HomeScreen() {
     },
   ];
 
+  // useEffect(() => {
+  //   const getdata = async () => {
+  //     const userId = process.env.EXPO_PUBLIC_USER_ID;
+  //     const response = await fetch(
+  //       `${process.env.EXPO_PUBLIC_DB_BACKEND}/api/users/${userId}/profile/deep`,
+  //     );
+  //     console.log(response);
+  //     const data = await response.json();
+  //     console.log(data)
+
+  //   }
+  //   getdata()
+  // })
   if (loading || !fontsLoaded) {
     return (
       <SafeAreaView

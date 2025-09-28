@@ -1,3 +1,4 @@
+import { message } from "@/data/data";
 import {
   Montserrat_400Regular,
   Montserrat_500Medium,
@@ -24,7 +25,6 @@ import {
   useColorScheme,
 } from "react-native";
 import { MarkdownView } from "react-native-markdown-view";
-import {message} from "@/data/data"
 type Message = {
   id: string;
   text?: string;
@@ -257,8 +257,9 @@ const Chat = () => {
     }
 
     try {
+      const userId = process.env.EXPO_PUBLIC_USER_ID;
       const response = await fetch(
-        "https://farmvichar-ml.onrender.com/chat/h8BfY08KoqFKxNOoQc9o",
+        `${process.env.EXPO_PUBLIC_ML_BACKEND}/chat/${userId}`,
         {
           method: "POST",
           body: formData,

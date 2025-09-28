@@ -114,9 +114,9 @@ const ProfileScreen = () => {
       const userId = userInfo.id;
 
       const [profileResponse, farmsResponse] = await Promise.all([
-        fetch(`https://farmvichardatabase.onrender.com/api/users/${userId}`),
+        fetch(`${process.env.EXPO_PUBLIC_DB_BACKEND}/api/users/${userId}`),
         fetch(
-          `https://farmvichardatabase.onrender.com/api/users/${userId}/farms/`
+          `${process.env.EXPO_PUBLIC_DB_BACKEND}/api/users/${userId}/farms/`
         ),
       ]);
 

@@ -54,7 +54,8 @@ export const NotificationModal = ({
   useEffect(() => {
     const getNotifications = async () => {
       try {
-        const response = await fetch("https://farmvichardatabase.onrender.com/api/users/h8BfY08KoqFKxNOoQc9o/alerts/");
+        const userId = process.env.EXPO_PUBLIC_USER_ID;
+        const response = await fetch(`${process.env.EXPO_PUBLIC_DB_BACKEND}/api/users/${userId}/alerts/`);
         const data = await response.json();
         setAlerts(data);
       } catch (error) {

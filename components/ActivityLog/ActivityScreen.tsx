@@ -82,7 +82,7 @@ export default function ActivityScreen() {
     try {
       setLoading(true);
       const logsResponse = await fetch(
-        `https://farmvichardatabase.onrender.com/api/farms/${farmId}/logs/`
+        `${process.env.EXPO_PUBLIC_DB_BACKEND}/api/farms/${farmId}/logs/`
       );
       if (logsResponse.ok) {
         const logsData = await logsResponse.json();
@@ -112,7 +112,7 @@ export default function ActivityScreen() {
         setUserId(userInfo.id);
 
         const farmsResponse = await fetch(
-          `https://farmvichardatabase.onrender.com/api/users/${userInfo.id}/farms/`
+          `${process.env.EXPO_PUBLIC_DB_BACKEND}/api/users/${userInfo.id}/farms/`
         );
         if (farmsResponse.ok) {
           const farmsData = await farmsResponse.json();

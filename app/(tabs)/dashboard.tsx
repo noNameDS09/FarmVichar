@@ -64,7 +64,7 @@ export default function App() {
       const userId = userInfo.id;
 
       // Using the ML endpoint as it provides the prediction data
-      const response = await fetch(`https://farmvichar-ml.onrender.com/dashboard/${userId}`);
+      const response = await fetch(`${process.env.EXPO_PUBLIC_ML_BACKEND}/dashboard/${userId}`);
       
       if (response.ok) {
         const fetchedData: DashboardData = await response.json();
