@@ -89,3 +89,21 @@ export const mockDataOfLog: DataOfLogType[] = [
     timestamp: "2025-09-15T03:45:54.447282Z"
   },
 ]
+
+
+export const message = `**Answer:**
+
+Yes, drain the excess water immediately to protect your seedlings, regardless of water levels in neighboring fields.
+
+**Reasoning:**
+
+*   **Seedling Vulnerability:** Paddy seedlings, especially in the early stages, are susceptible to damage and reduced growth due to prolonged submergence.
+*   **Pest Risk:** While Kerala's high humidity favors pests, allowing stagnant water increases pest and disease incidence, as indicated by the predicted pest risk of 40%.
+*   **Kuttanad Context:** Kuttanad's rice fields are traditionally managed with integrated systems. The information you have to follow Rice-Fish-Duck-Buffalo Integration is important, but it requires controlled water levels. Uncontrolled flooding is detrimental.
+
+**Solution:**
+
+1.  **Immediate Drainage:** Open drainage channels to remove excess water from your field to prevent seedling damage.
+2.  **Monitor Pest Activity:** Closely observe your seedlings for signs of pests or diseases. If necessary, consider using bio-pesticides or other environmentally friendly pest control methods as outlined in the provided text regarding organic farming in Kerala.
+3.  **Optimize Water Management:** After the rains subside, manage water levels carefully, using the Rice-Fish-Duck-Buffalo Integration model if applicable, but prioritize optimal conditions for rice growth.
+4.  **Consider PM-KISAN scheme benefits:** Explore if you can avail any benefits for crop losses due to rains or pest damage with PM-KISAN scheme for agriculture benifits`

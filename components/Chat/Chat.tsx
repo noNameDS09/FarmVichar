@@ -24,7 +24,7 @@ import {
   useColorScheme,
 } from "react-native";
 import { MarkdownView } from "react-native-markdown-view";
-
+import {message} from "@/data/data"
 type Message = {
   id: string;
   text?: string;
@@ -77,21 +77,58 @@ const Chat = () => {
   }, [playingSound]);
 
   const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      Alert.alert(
-        "Permission required",
-        "Permission to access media library is required!"
-      );
-      return;
-    }
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
-    if (!result.canceled && result.assets.length > 0) {
-      setPendingImage(result.assets[0].uri);
-    }
+    Alert.alert(
+      "Select Image",
+      "Choose an option to add an image.",
+      [
+        {
+          text: "Take Photo",
+          onPress: async () => {
+            const { status } =
+              await ImagePicker.requestCameraPermissionsAsync();
+            if (status !== "granted") {
+              Alert.alert(
+                "Permission required",
+                "Permission to access camera is required!"
+              );
+              return;
+            }
+            const result = await ImagePicker.launchCameraAsync({
+              quality: 1,
+            });
+            if (!result.canceled && result.assets.length > 0) {
+              setPendingImage(result.assets[0].uri);
+            }
+          },
+        },
+        {
+          text: "Choose from Library",
+          onPress: async () => {
+            const { status } =
+              await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (status !== "granted") {
+              Alert.alert(
+                "Permission required",
+                "Permission to access media library is required!"
+              );
+              return;
+            }
+            const result = await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ImagePicker.MediaTypeOptions.Images,
+              quality: 1,
+            });
+            if (!result.canceled && result.assets.length > 0) {
+              setPendingImage(result.assets[0].uri);
+            }
+          },
+        },
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const startRecording = async () => {
@@ -122,7 +159,23 @@ const Chat = () => {
       const uri = recording.getURI();
       setRecording(null);
       if (uri) {
-        sendMessage({ audioUri: uri, language: selectedLanguage });
+        Alert.alert(
+          "Confirm Send",
+          "Do you want to send this voice message?",
+          [
+            {
+              text: "Cancel",
+              onPress: () => console.log("Voice message cancelled."),
+              style: "cancel",
+            },
+            {
+              text: "Send",
+              onPress: () =>
+                sendMessage({ audioUri: uri, language: selectedLanguage }),
+            },
+          ],
+          { cancelable: true }
+        );
       }
     } catch (error) {
       Alert.alert("Error", "Failed to stop recording.");
@@ -156,6 +209,26 @@ const Chat = () => {
     setInputText("");
     setPendingImage(null);
 
+    // Bypass API for voice and provide a fake response
+    if (newMessage.audioUri) {
+      const fakeBotResponse = message;
+
+      const botMessage: Message = {
+        id: `bot-${Date.now()}`,
+        text: fakeBotResponse,
+        createdAt: new Date(),
+        userId: 2,
+      };
+
+      // Simulate bot "thinking"
+      setIsSending(true);
+
+      setTimeout(() => {
+        setMessages((prev) => [botMessage, ...prev]);
+        setIsSending(false);
+      }, 3500); // Simulate a 3.5-second network delay
+      return;
+    }
     const formData = new FormData();
     formData.append("text_query", newMessage.text || "Audio message or Image");
     formData.append("language_code", newMessage.language || "ml");
@@ -200,6 +273,7 @@ const Chat = () => {
       }
 
       const data = await response.json();
+      // console.log(data);
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
         text: data.response_text,
@@ -209,7 +283,7 @@ const Chat = () => {
       setMessages((prev) => [botMessage, ...prev]);
       flatListRef.current?.scrollToOffset({ offset: 0, animated: true });
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.log("Failed to send message:", error);
       Alert.alert(
         "Error",
         `Failed to send message: ${(error as Error).message}`
@@ -429,7 +503,6 @@ const Chat = () => {
             value={inputText}
             onChangeText={setInputText}
             multiline
-            
           />
         </View>
         <TouchableOpacity
@@ -438,7 +511,9 @@ const Chat = () => {
           }}
           style={styles.languageButton}
         >
-          <Text style={styles.languageText}>{selectedLanguage.toUpperCase()}</Text>
+          <Text style={styles.languageText}>
+            {selectedLanguage.toUpperCase()}
+          </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => sendMessage({ language: selectedLanguage })}
@@ -465,7 +540,7 @@ const getStyles = (isDark: boolean) =>
       flex: 1,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
-      overflow: 'hidden', // This is key to ensure children conform to the radius
+      overflow: "hidden", // This is key to ensure children conform to the radius
     },
     header: {
       backgroundColor: isDark ? "#27272a" : "#6EE7B7",
