@@ -5,13 +5,13 @@
 2. Add the Expo Go app in your mobile.
    
 ## Get started
-1. Install dependencies
+1. Clone Project
  
    ```bash
    git clone https://github.com/noNameDS09/FarmVichar.git
    ```
 
-1. Install dependencies
+2. Navigate to project
  
    ```bash
    cd FarmviChar
@@ -23,7 +23,7 @@
    npm install #or npm i
    ```
 
-2. Start the app
+4. Start the app
 
    ```bash
    npx expo start
@@ -32,3 +32,4 @@
 It will start the server and you will see the QR code. Scan the QR the app will be opened.
 
 For more info visit -> [Expo](https://expo.dev)
+
