@@ -1,42 +1,217 @@
 import { NotificationModal } from "@/components/Notifications/NotificationModal";
-import { Ionicons } from "@expo/vector-icons";
-import React, { useRef, useState } from "react";
-import { useRouter } from "expo-router";
 import {
+  Montserrat_400Regular,
+  Montserrat_500Medium,
+  Montserrat_700Bold,
+  useFonts,
+} from "@expo-google-fonts/montserrat";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { StatusBar } from "expo-status-bar";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
+import {
+  ActivityIndicator,
+  FlatList,
   ImageBackground,
   ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
   useColorScheme,
   View,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import DrawerLayout from "react-native-gesture-handler/DrawerLayout";
+import {
+  DrawerLayout,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import Home from "../../components/Home/Home";
 import ProfileDrawer from "../../components/Profile/ProfileDrawer";
+
+const palette = {
+  nearBlack: "#1C1E1C", // A slightly softer black
+  lightSand: "#F0EFEA", // A calmer, more neutral sand color
+  emrald: "#10B981", // A muted, sage-like green
+  offWhite: "#F9F9F7", // A clean off-white
+  mediumGreen: "#576643", // A deep, earthy green
+  lightMoss: "#CAD2C5", // A soft, gentle green-gray
+  yellowGold: "#fff", // A more muted, antique gold
+  alertRed: "#C94C4C", // A less saturated, calmer red
+  white: "#e8e8e8",
+};
+
+const weatherImages = {
+  Sunny: {
+    uri: "https://images.unsplash.com/vector-1753854003835-75dcb12b7776?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  Cloudy: {
+    uri: "https://plus.unsplash.com/premium_vector-1721648394990-79ed1f436ef7?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  Rainy: {
+    uri: "https://plus.unsplash.com/premium_vector-1723043561549-2b8cc0b6af91?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+  Default: {
+    uri: "https://plus.unsplash.com/premium_vector-1723043561549-2b8cc0b6af91?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  },
+};
 
 export default function HomeScreen() {
   const scheme = useColorScheme();
   const isDark = scheme === "dark";
-
   const drawerRef = useRef<DrawerLayout>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [fontsLoaded] = useFonts({
+    Montserrat_400Regular,
+    Montserrat_500Medium,
+    Montserrat_700Bold,
+  });
+
+  const [pestRiskEnabled, setPestRiskEnabled] = useState(false);
+  const [weather, setWeather] = useState({
+    location: "Chennai",
+    temp: "25°",
+    condition: "Sunny", // Can be 'Sunny', 'Cloudy', 'Rainy'
+  });
 
   const renderDrawer = () => (
     <ProfileDrawer
-      onClose={() => drawerRef.current?.closeDrawer()}
-      onLogout={() => console.log("🔒 Logout handled in ProfileDrawer")}
-      isLoggingOut={false}
+      onClose={closeDrawer}
+      onLogout={handleLogout}
+      isLoggingOut={isLoggingOut}
     />
   );
 
+  const checkLoginStatus = async () => {
+    setLoading(true);
+    const token = await AsyncStorage.getItem("access_token");
+    const userName = await AsyncStorage.getItem("user_name");
+    if (token) {
+      setIsLoggedIn(true);
+      console.log("✅ Logged in as:", userName);
+    } else {
+      setIsLoggedIn(false);
+      console.log("🔒 Not logged in");
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    checkLoginStatus();
+  }, []);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await AsyncStorage.removeItem("access_token");
+    await AsyncStorage.removeItem("user_name");
+    setIsLoggedIn(false);
+    setIsLoggingOut(false);
+    console.log("🔒 Logged out");
+  };
+
+  const openDrawer = useCallback(() => {
+    drawerRef.current?.openDrawer();
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    drawerRef.current?.closeDrawer();
+  }, []);
+
+  const keralaSchemes = [
+    {
+      name: "Subsidy for Organic Paddy Farming",
+      icon: "leaf" as keyof typeof MaterialCommunityIcons.glyphMap,
+    },
+    {
+      name: "Kerala Water Management Initiative",
+      icon: "water-pump" as keyof typeof MaterialCommunityIcons.glyphMap,
+    },
+    {
+      name: "Machinery Support for Coconut Farmers",
+      icon: "tractor-variant" as keyof typeof MaterialCommunityIcons.glyphMap,
+    },
+    {
+      name: "Integrated Pest Management Program",
+      icon: "shield-bug" as keyof typeof MaterialCommunityIcons.glyphMap,
+    },
+    {
+      name: "Krishi Loan Support Scheme",
+      icon: "cash-multiple" as keyof typeof MaterialCommunityIcons.glyphMap,
+    },
+  ];
+
+  const farmingBlogs = [
+    {
+      title: "Organic Fertilizers: Benefits & Application",
+      thumbnail:
+        "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070&auto=format&fit=crop",
+    },
+    {
+      title: "Water-saving Irrigation Techniques",
+      thumbnail:
+        "https://plus.unsplash.com/premium_photo-1661845609789-635c5e35c4ba?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8aXJyaWdhdGlvbnxlbnwwfHwwfHx8MA%3D%3D",
+    },
+    {
+      title: "Crop Rotation Practices to Boost Yield",
+      thumbnail:
+        "https://www.lingayasvidyapeeth.edu.in/sanmax/wp-content/uploads/2024/02/Crop-Rotation-Strategies-for-Soil-Health.png",
+    },
+    {
+      title: "Natural Pest Control Methods",
+      thumbnail:
+        "https://images.unsplash.com/photo-1628352081506-83c43123ed6d?q=80&w=1296&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    },
+  ];
+
+  if (loading || !fontsLoaded) {
+    return (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: isDark ? palette.nearBlack : palette.offWhite,
+        }}
+      >
+        <ActivityIndicator
+          size="large"
+          color={isDark ? palette.yellowGold : palette.nearBlack}
+        />
+        <Text
+          style={{
+            color: isDark ? palette.lightSand : palette.nearBlack,
+            marginTop: 10,
+          }}
+        >
+          Fetching Your Details...
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  // Using a dynamic style object for better readability
+  const styles = getStyles(isDark);
+
+  const weatherImage = useMemo(() => {
+    const condition = weather.condition as keyof typeof weatherImages;
+    return weatherImages[condition] || weatherImages.Default;
+  }, [weather.condition]);
+
+  // if (!isLoggedIn) return <MyForm onLoginSuccess={checkLoginStatus} />;
+
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={styles.flexOne}>
       <DrawerLayout
         ref={drawerRef}
         drawerWidth={250}
@@ -44,170 +219,200 @@ export default function HomeScreen() {
         renderNavigationView={renderDrawer}
         onDrawerOpen={() => setDrawerOpen(true)}
         onDrawerClose={() => setDrawerOpen(false)}
+        drawerType="front"
+        drawerBackgroundColor={isDark ? palette.nearBlack : palette.offWhite}
       >
-        <SafeAreaView
-          style={{ flex: 1, backgroundColor: isDark ? "black" : "white" }}
-        >
+        <SafeAreaView className="flex-1 bg-emerald-500">
           <StatusBar style={isDark ? "light" : "dark"} />
-
-          <ScrollView style={{ flex: 1 }}>
-            <View style={{ paddingHorizontal: 16, paddingTop: 24 }}>
+          <ScrollView
+            style={[
+              styles.flexOne,
+              {
+                backgroundColor: isDark ? palette.nearBlack : palette.offWhite,
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+              },
+            ]}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.container}>
               {/* Header */}
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => setModalVisible(true)}
-                  style={{
-                    position: "relative",
-                    borderRadius: 50,
-                    padding: 8,
-                    borderWidth: 1,
-                    borderColor: isDark ? "#c2c2c2" : "#4a4b4d",
-                  }}
-                >
-                  <Ionicons
-                    name="notifications"
-                    size={18}
-                    color={isDark ? "#c2c2c2" : "#4a4b4d"}
-                  />
-                  <View
-                    style={{
-                      position: "absolute",
-                      top: -2,
-                      right: -2,
-                      width: 10,
-                      height: 10,
-                      borderRadius: 5,
-                      backgroundColor: "red",
-                    }}
-                  />
-                </TouchableOpacity>
+              <View style={styles.header}>
+                <View>
+                  <Text style={styles.headerWelcome}>Welcome Back,</Text>
+                  <Text style={styles.headerTitle}>FarmVichar</Text>
+                </View>
+                <View style={styles.headerIcons}>
+                  <TouchableOpacity
+                    onPress={() => setModalVisible(true)}
+                    style={styles.iconButton}
+                  >
+                    <Ionicons
+                      name="notifications-outline"
+                      size={24}
+                      color={isDark ? palette.lightMoss : palette.mediumGreen}
+                    />
+                    <View style={styles.notificationBadge} />
+                  </TouchableOpacity>
 
-                <Text
-                  style={{
-                    fontSize: 24,
-                    fontWeight: "bold",
-                    color: isDark ? "white" : "black",
-                  }}
-                >
-                  FarmVichar
-                </Text>
-
-                <TouchableOpacity
-                  onPress={() => {
-                    drawerRef.current?.openDrawer();
-                  }}
-                >
-                  <Ionicons
-                    name="person-circle-outline"
-                    size={35}
-                    color={isDark ? "#c2c2c2" : "#333333"}
-                  />
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={openDrawer}
+                    style={styles.iconButton}
+                  >
+                    <Ionicons
+                      name="person-circle-outline"
+                      size={32}
+                      color={isDark ? palette.lightMoss : palette.mediumGreen}
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {/* Search Bar */}
-              <View
-                style={{
-                  backgroundColor: isDark ? "#333" : "#f0f0f0",
-                  borderRadius: 50,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  paddingHorizontal: 8,
-                  marginTop: 20,
-                }}
-              >
+              <View style={styles.searchContainer}>
                 <Ionicons
                   name="search"
-                  size={30}
-                  color={isDark ? "gray" : "black"}
+                  size={22}
+                  color={isDark ? palette.lightMoss : palette.mediumGreen}
                 />
                 <TextInput
-                  placeholder="Upcoming Farm schemes..."
-                  placeholderTextColor={isDark ? "gray" : "black"}
-                  style={{
-                    flex: 1,
-                    marginLeft: 8,
-                    fontSize: 16,
-                    color: isDark ? "white" : "black",
-                  }}
+                  placeholder="Search for crops, schemes..."
+                  placeholderTextColor={
+                    isDark ? palette.lightMoss : palette.mediumGreen
+                  }
+                  style={styles.searchInput}
                 />
               </View>
 
-              {/* Weather Info */}
+              {/* Weather Info Section */}
               <ImageBackground
-                source={{
-                  uri: "https://plus.unsplash.com/premium_vector-1723658879791-519ef702df40?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0",
-                }}
-                style={{
-                  width: "100%",
-                  height: 400,
-                  borderRadius: 15,
-                  marginTop: 20,
-                  overflow: "hidden",
-                }}
-                resizeMode="cover"
+                source={weatherImage}
+                style={styles.weatherCard}
+                imageStyle={styles.weatherCardImage}
               >
-                <View
-                  style={{
-                    flex: 1,
-                    backgroundColor: isDark
-                      ? "rgba(45,45,45,0.7)"
-                      : "rgba(245,245,245,0.5)",
-                    padding: 24,
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <Text
-                    style={{ fontSize: 18, color: isDark ? "white" : "black" }}
-                  >
-                    Kochi
-                  </Text>
-                  <Text
-                    style={{
-                      fontSize: 48,
-                      fontWeight: "bold",
-                      color: isDark ? "white" : "black",
-                    }}
-                  >
-                    25°C
-                  </Text>
-                  <Text
-                    style={{
-                      marginTop: 8,
-                      fontSize: 16,
-                      color: isDark ? "lightgray" : "#4F200D",
-                    }}
-                  >
-                    Mostly sunny
-                  </Text>
-                  <Text
-                    style={{
-                      marginTop: 16,
-                      fontSize: 16,
-                      fontStyle: "italic",
-                      color: isDark ? "white" : "#4F200D",
-                      textAlign: "center",
-                    }}
-                  >
-                    "Keep your paddy well-watered on sunny days to protect the crop"
+                <View style={styles.weatherOverlay}>
+                  <View style={styles.weatherHeader}>
+                    <Ionicons
+                      name="location-sharp"
+                      size={20}
+                      color={palette.offWhite}
+                    />
+                    <Text style={styles.weatherLocation}>
+                      {weather.location}
+                    </Text>
+                  </View>
+                  <View style={styles.weatherBody}>
+                    <Ionicons
+                      name={
+                        weather.condition === "Sunny"
+                          ? "sunny"
+                          : weather.condition === "Cloudy"
+                          ? "cloudy"
+                          : "rainy"
+                      }
+                      size={64}
+                      color={palette.yellowGold}
+                    />
+                    <View style={styles.weatherTempContainer}>
+                      <Text style={styles.weatherTemp}>{weather.temp}</Text>
+                      <Text style={styles.weatherCondition}>
+                        Mostly {weather.condition}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={styles.weatherAdvice}>
+                    "Keep your paddy well-watered on sunny days to protect the
+                    crop."
                   </Text>
                 </View>
               </ImageBackground>
 
-              {/* Home Component */}
-              <Home />
+              {/* Pest Risks Section */}
+              <View style={styles.pestCard}>
+                <View style={styles.pestTextContainer}>
+                  <Text style={styles.pestTitle}>Pest Risk Alert</Text>
+                  <Text style={styles.pestDescription}>
+                    Moderate risk of pest outbreak in your area.
+                  </Text>
+                </View>
+                <View style={styles.pestRiskCircle}>
+                  <Text style={styles.pestRiskPercent}>75%</Text>
+                </View>
+              </View>
+
+              {/* Section Header */}
+              <View style={styles.sectionHeader}>
+                <MaterialCommunityIcons
+                  name="book-open-page-variant-outline"
+                  size={24}
+                  color={isDark ? palette.lightMoss : palette.mediumGreen}
+                />
+                <Text style={styles.sectionTitle}>
+                  News & Kerala Farm Schemes
+                </Text>
+              </View>
+
+              {/* News Tab Section */}
+              {keralaSchemes.map((scheme) => (
+                <TouchableOpacity key={scheme.name} style={styles.schemeCard}>
+                  <View style={styles.schemeIcon}>
+                    <MaterialCommunityIcons
+                      name={scheme.icon}
+                      size={24}
+                      color={palette.yellowGold}
+                    />
+                  </View>
+                  <Text style={styles.schemeText}>{scheme.name}</Text>
+                  <Ionicons
+                    name="chevron-forward"
+                    size={20}
+                    color={isDark ? palette.lightMoss : palette.mediumGreen}
+                  />
+                </TouchableOpacity>
+              ))}
+
+              {/* Section Header */}
+              <View style={styles.sectionHeader}>
+                <MaterialCommunityIcons
+                  name="lightbulb-on-outline"
+                  size={24}
+                  color={isDark ? palette.lightMoss : palette.mediumGreen}
+                />
+                <Text style={styles.sectionTitle}>
+                  Tutorials & Video Guides
+                </Text>
+              </View>
+
+              {/* Farming Blogs Cards */}
+              <FlatList
+                horizontal
+                data={farmingBlogs}
+                keyExtractor={(item, index) => `${item.title}-${index}`}
+                renderItem={({ item }) => (
+                  <TouchableOpacity style={styles.blogCard}>
+                    <ImageBackground
+                      source={{ uri: item.thumbnail }}
+                      style={styles.blogThumbnail}
+                      imageStyle={styles.blogThumbnailImage}
+                    >
+                      <View style={styles.blogThumbnailOverlay} />
+                      <MaterialCommunityIcons
+                        name="play-circle-outline"
+                        size={48}
+                        color="rgba(255, 255, 255, 0.8)"
+                      />
+                    </ImageBackground>
+                    <Text style={styles.blogTitle}>{item.title}</Text>
+                  </TouchableOpacity>
+                )}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.blogListContainer}
+              />
             </View>
           </ScrollView>
         </SafeAreaView>
       </DrawerLayout>
-
       <NotificationModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
@@ -216,3 +421,236 @@ export default function HomeScreen() {
     </GestureHandlerRootView>
   );
 }
+
+const getStyles = (isDark: boolean) =>
+  StyleSheet.create({
+    flexOne: { flex: 1 },
+    scrollContent: { paddingBottom: 0, paddingTop: 0 },
+    container: { paddingHorizontal: 16, flex: 1 },
+    header: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      paddingTop: 12,
+      marginBottom: 20,
+    },
+    headerWelcome: {
+      fontSize: 16,
+      fontFamily: "Montserrat_400Regular",
+      color: isDark ? palette.lightMoss : palette.mediumGreen,
+    },
+    headerTitle: {
+      fontSize: 28,
+      fontWeight: "bold",
+      fontFamily: "Montserrat_700Bold",
+      color: isDark ? palette.yellowGold : palette.nearBlack,
+    },
+    headerIcons: { flexDirection: "row", alignItems: "center" },
+    iconButton: { marginLeft: 16, position: "relative" },
+    notificationBadge: {
+      position: "absolute",
+      top: 0,
+      right: 0,
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: palette.alertRed,
+      borderWidth: 1,
+      borderColor: isDark ? palette.nearBlack : palette.offWhite,
+    },
+    searchContainer: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: isDark ? "#1c1c1e" : palette.lightSand,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      marginBottom: 18,
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: 12,
+      fontSize: 16,
+      fontFamily: "Montserrat_400Regular",
+      color: isDark ? palette.offWhite : palette.nearBlack,
+    },
+
+    weatherCard: {
+      borderRadius: 20,
+      marginBottom: 18,
+      overflow: "hidden", // Important for borderRadius to work with ImageBackground
+      height: 320, // Adjusted height for a more compact look
+      justifyContent: "center", // Aligns content to the bottom
+    },
+    weatherCardImage: {
+      resizeMode: "cover",
+      height: "100%", // Ensure image covers the full height
+    },
+    weatherOverlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.4)", // Slightly darker overlay for better contrast
+      padding: 20,
+      paddingTop: 40, // Add more space at the top for a gradient effect
+      position: "absolute", // Overlay on top of the image
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      justifyContent: "flex-end", // Align text to the bottom of the card
+    },
+    weatherHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    weatherLocation: {
+      marginLeft: 8,
+      fontSize: 18,
+      fontWeight: "500",
+      fontFamily: "Montserrat_500Medium",
+      color: palette.offWhite,
+      textShadowColor: "rgba(0, 0, 0, 0.75)",
+      textShadowOffset: { width: -1, height: 1 },
+      textShadowRadius: 10,
+    },
+    weatherBody: {
+      flexDirection: "row",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginTop: 8,
+    },
+    weatherTempContainer: {
+      alignItems: "flex-end",
+    },
+    weatherTemp: {
+      fontSize: 48,
+      fontWeight: "bold",
+      fontFamily: "Montserrat_700Bold",
+      color: palette.offWhite,
+    },
+    weatherCondition: {
+      fontSize: 18,
+      fontFamily: "Montserrat_400Regular",
+      color: palette.lightMoss,
+    },
+    weatherAdvice: {
+      fontSize: 14,
+      fontStyle: "italic",
+      color: palette.offWhite,
+      fontFamily: "Montserrat_400Regular",
+      marginTop: 12,
+    },
+
+    pestCard: {
+      backgroundColor: palette.alertRed,
+      borderRadius: 20,
+      padding: 20,
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 24,
+    },
+    pestTextContainer: { flex: 1, paddingRight: 10 },
+    pestTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      fontFamily: "Montserrat_700Bold",
+      color: palette.offWhite,
+      marginBottom: 4,
+    },
+    pestDescription: {
+      color: palette.offWhite,
+      fontSize: 14,
+      fontFamily: "Montserrat_400Regular",
+    },
+    pestRiskCircle: {
+      width: 70,
+      height: 70,
+      borderRadius: 35,
+      backgroundColor: "rgba(255,255,255,0.2)",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    pestRiskPercent: {
+      fontSize: 24,
+      fontWeight: "bold",
+      fontFamily: "Montserrat_700Bold",
+      color: palette.offWhite,
+    },
+    sectionHeader: {
+      flexDirection: "row",
+      alignItems: "center",
+      marginBottom: 16,
+      marginTop: 8,
+    },
+    sectionTitle: {
+      fontSize: 20,
+      fontWeight: "bold",
+      fontFamily: "Montserrat_700Bold",
+      marginLeft: 10,
+      color: isDark ? palette.lightMoss : palette.mediumGreen,
+    },
+    schemeCard: {
+      flexDirection: "row",
+      alignItems: "center",
+      backgroundColor: isDark ? "#1c1c1e" : "#e8ffe8",
+      padding: 16,
+      borderRadius: 12,
+      marginBottom: 12,
+      elevation: 2,
+      shadowColor: "#000",
+      shadowOpacity: isDark ? 0.4 : 0.05,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 2 },
+    },
+    schemeIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 8,
+      backgroundColor: palette.emrald,
+      justifyContent: "center",
+      alignItems: "center",
+      marginRight: 16,
+    },
+    schemeText: {
+      flex: 1,
+      fontSize: 15,
+      fontWeight: "500",
+      fontFamily: "Montserrat_500Medium",
+      color: isDark ? palette.lightSand : palette.mediumGreen,
+    },
+    blogListContainer: {
+      paddingHorizontal: 16,
+      paddingBottom: 24,
+    },
+    blogCard: {
+      backgroundColor: isDark ? "#1c1c1e" : palette.offWhite,
+      borderRadius: 16,
+      width: 200,
+      marginRight: 16,
+      overflow: "hidden",
+      elevation: 5,
+      shadowColor: "#000",
+      shadowOpacity: isDark ? 0.6 : 0.1,
+      shadowRadius: 8,
+      shadowOffset: { width: 0, height: 4 },
+    },
+    blogThumbnail: {
+      height: 100,
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    blogThumbnailImage: {
+      resizeMode: "cover",
+    },
+    blogThumbnailOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: "rgba(0,0,0,0.3)",
+    },
+    blogTitle: {
+      padding: 12,
+      fontSize: 14,
+      minHeight: 60,
+      fontWeight: "500",
+      fontFamily: "Montserrat_500Medium",
+      color: isDark ? palette.lightSand : palette.mediumGreen,
+    },
+  });

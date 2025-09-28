@@ -1,7 +1,7 @@
+import { AlertType } from "@/types/types";
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { AlertType } from "@/types/types";
 
 type AlertWithIndex = AlertType & { index: number };
 

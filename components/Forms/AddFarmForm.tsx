@@ -1,16 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 interface AddFarmFormProps {
@@ -19,16 +19,9 @@ interface AddFarmFormProps {
 
 const AddFarmForm: React.FC<AddFarmFormProps> = ({ onFarmAdded }) => {
   const [farmData, setFarmData] = useState({
-    village: "",
-    taluka: "",
-    district: "",
-    state: "",
-    pinCode: "",
+    farmName: "",
     totalFarmArea: "",
     soilType: "",
-    waterSource: "",
-    irrigationMethod: "",
-    climateNotes: "",
   });
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -75,6 +68,7 @@ const AddFarmForm: React.FC<AddFarmFormProps> = ({ onFarmAdded }) => {
           },
           body: JSON.stringify({
             ...farmData,
+            userId: userId,
             totalFarmArea: parseFloat(farmData.totalFarmArea),
           }),
         }
@@ -117,7 +111,7 @@ const AddFarmForm: React.FC<AddFarmFormProps> = ({ onFarmAdded }) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
         contentContainerStyle={styles.container}
@@ -126,16 +120,9 @@ const AddFarmForm: React.FC<AddFarmFormProps> = ({ onFarmAdded }) => {
         <Text style={styles.title}>Add New Farm</Text>
         {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
-        {renderInput("Village", "village")}
-        {renderInput("Taluka", "taluka")}
-        {renderInput("District", "district")}
-        {renderInput("State", "state")}
-        {renderInput("PIN Code", "pinCode", "numeric")}
+        {renderInput("Farm Name", "farmName")}
         {renderInput("Total Farm Area (in acres)", "totalFarmArea", "numeric")}
         {renderInput("Soil Type", "soilType")}
-        {renderInput("Water Source", "waterSource")}
-        {renderInput("Irrigation Method", "irrigationMethod")}
-        {renderInput("Climate Notes", "climateNotes")}
 
         <TouchableOpacity
           style={[styles.button, loading && styles.buttonDisabled]}

@@ -1,0 +1,209 @@
+{
+  "info": {
+    "name": "Krishi Sakhi API Reference",
+    "description": "Complete API reference for the Krishi Sakhi FastAPI Backend for farmer assistance.",
+    "version": "2.0.0",
+    "baseUrl": "https://farmvichardatabase.onrender.com"
+  },
+  "endpoints": [
+    {
+      "name": "Root",
+      "method": "GET",
+      "path": "/",
+      "description": "Get basic information about the API.",
+      "request": { "headers": {}, "body": null },
+      "response": {
+        "status": 200,
+        "body": { "message": "Welcome to the Krishi Sakhi POC API" }
+      },
+      "example": {
+        "curl": "curl -X GET \"https://farmvichardatabase.onrender.com/\"",
+        "python": "requests.get('https://farmvichardatabase.onrender.com/')",
+        "javascript": "fetch('https://farmvichardatabase.onrender.com/')"
+      }
+    },
+    {
+      "name": "Register User",
+      "method": "POST",
+      "path": "/api/users/register",
+      "description": "Creates a new user account with a hashed password.",
+      "request": {
+        "headers": { "Content-Type": "application/json" },
+        "body": {
+          "fullName": "Ravi Patel",
+          "phone": "9876543210",
+          "password": "strongpassword123"
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "someUniqueUserId",
+          "fullName": "Ravi Patel",
+          "phone": "9876543210",
+          "age": null,
+          "createdAt": "2025-09-25T14:00:00Z"
+        }
+      },
+      "example": {
+        "curl": "curl -X POST \"https://farmvichardatabase.onrender.com/api/users/register\" -H \"Content-Type: application/json\" -d '{\"fullName\": \"Ravi Patel\", \"phone\": \"9876543210\", \"password\": \"strongpassword123\"}'",
+        "python": "requests.post('https://farmvichardatabase.onrender.com/api/users/register', json={'fullName': 'Ravi Patel', 'phone': '9876543210', 'password': 'strongpassword123'})",
+        "javascript": "fetch('https://farmvichardatabase.onrender.com/api/users/register', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fullName: 'Ravi Patel', phone: '9876543210', password: 'strongpassword123'}) })"
+      }
+    },
+    {
+      "name": "Login User",
+      "method": "POST",
+      "path": "/api/users/login",
+      "description": "Verifies a user's credentials and returns their profile data on success.",
+      "request": {
+        "headers": { "Content-Type": "application/json" },
+        "body": { "phone": "9876543210", "password": "strongpassword123" }
+      },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "someUniqueUserId",
+          "fullName": "Ravi Patel",
+          "phone": "9876543210"
+        }
+      },
+      "example": {
+        "curl": "curl -X POST \"https://farmvichardatabase.onrender.com/api/users/login\" -H \"Content-Type: application/json\" -d '{\"phone\": \"9876543210\", \"password\": \"strongpassword123\"}'",
+        "python": "requests.post('https://farmvichardatabase.onrender.com/api/users/login', json={'phone': '9876543210', 'password': 'strongpassword123'})",
+        "javascript": "fetch('https://farmvichardatabase.onrender.com/api/users/login', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({phone: '9876543210', password: 'strongpassword123'}) })"
+      }
+    },
+    {
+      "name": "Get User Profile",
+      "method": "GET",
+      "path": "/api/users/{user_id}",
+      "description": "Retrieves the profile for a single user by their ID.",
+      "request": { "headers": {}, "body": null },
+      "response": {
+        "status": 200,
+        "body": {
+          "id": "someUniqueUserId",
+          "fullName": "Ravi Patel",
+          "phone": "9876543210"
+        }
+      },
+      "example": {
+        "curl": "curl -X GET \"https://farmvichardatabase.onrender.com/api/users/someUniqueUserId\"",
+        "python": "requests.get('https://farmvichardatabase.onrender.com/api/users/someUniqueUserId')",
+        "javascript": "fetch('https://farmvichardatabase.onrender.com/api/users/someUniqueUserId')"
+      }
+    },
+    {
+      "name": "Create Farm for User",
+      "method": "POST",
+      "path": "/api/users/{user_id}/farms/",
+      "description": "Creates a new farm linked to a specific user.",
+      "request": {
+        "headers": { "Content-Type": "application/json" },
+        "body": {
+          "userId": "someUniqueUserId",
+          "farmName": "My Kerala Farm",
+          "totalFarmArea": 2.5,
+          "soilType": "Laterite"
+        }
+      },
+      "response": {
+        "status": 201,
+        "body": {
+          "id": "newlyCreatedFarmId",
+          "userId": "someUniqueUserId",
+          "farmName": "My Kerala Farm"
+        }
+      },
+      "example": {
+        "curl": "curl -X POST \"https://farmvichardatabase.onrender.com/api/users/someUniqueUserId/farms/\" -H \"Content-Type: application/json\" -d '{\"userId\": \"someUniqueUserId\", \"farmName\": \"My Kerala Farm\"}'",
+        "python": "requests.post('https://farmvichardatabase.onrender.com/api/users/someUniqueUserId/farms/', json={'userId': 'someUniqueUserId', 'farmName': 'My Kerala Farm'})",
+        "javascript": "fetch('https://farmvichardatabase.onrender.com/api/users/someUniqueUserId/farms/', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({userId: 'someUniqueUserId', farmName: 'My Kerala Farm'}) })"
+      }
+    },
+    {
+      "name": "Get Full User Profile (Deep Fetch)",
+      "method": "GET",
+      "path": "/api/users/{user_id}/profile/deep",
+      "description": "Retrieves all data related to a user, including their profile, farms, and all farm-related sub-data, in a single request.",
+      "request": { "headers": {}, "body": null },
+      "response": {
+        "status": 200,
+        "body": {
+          "profile": { "id": "someUniqueUserId", "fullName": "Ravi Patel" },
+          "finance_records": [],
+          "alerts": [],
+          "farms": [
+            {
+              "id": "farm_abc_123",
+              "farmName": "My Kerala Farm",
+              "crop_profile": {},
+              "activity_logs": []
+            }
+          ]
+        }
+      },
+      "example": {
+        "curl": "curl -X GET \"https://farmvichardatabase.onrender.com/api/users/someUniqueUserId/profile/deep\"",
+        "python": "requests.get('https://farmvichardatabase.onrender.com/api/users/someUniqueUserId/profile/deep')",
+        "javascript": "fetch('https://farmvichardatabase.onrender.com/api/users/someUniqueUserId/profile/deep')"
+      }
+    },
+    {
+        "name": "Text-to-Speech",
+        "method": "POST",
+        "path": "/api/tts/synthesize",
+        "description": "Converts text into a spoken MP3 audio stream.",
+        "request": {
+            "headers": { "Content-Type": "application/json" },
+            "body": {
+                "text": "നമസ്കാരം, ഇത് ഒരു പരീക്ഷണമാണ്.",
+                "language": "malayalam"
+            }
+        },
+        "response": {
+            "status": 200,
+            "headers": { "Content-Type": "audio/mpeg" },
+            "body": "(Binary audio data)"
+        },
+        "example": {
+            "curl": "curl -X POST \"https://farmvichardatabase.onrender.com/api/tts/synthesize\" -H \"Content-Type: application/json\" -d '{\"text\": \"Hello world\", \"language\": \"english\"}' --output speech.mp3",
+            "python": "response = requests.post('https://farmvichardatabase.onrender.com/api/tts/synthesize', json={'text': 'Hello world', 'language': 'english'});\nwith open('speech.mp3', 'wb') as f: f.write(response.content)",
+            "javascript": "fetch('https://farmvichardatabase.onrender.com/api/tts/synthesize', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: 'Hello world', language: 'english'}) })"
+        }
+    }
+  ],
+  "error_responses": {
+    "404": {
+      "description": "Not Found - The requested resource could not be found.",
+      "body": { "detail": "Not Found" }
+    },
+    "409": {
+      "description": "Conflict - The resource already exists (e.g., user with the same phone number).",
+      "body": { "detail": "User with this phone number already exists." }
+    },
+    "422": {
+      "description": "Unprocessable Entity - The request body is malformed or missing required fields.",
+      "body": { "detail": [ { "loc": ["body", "fieldName"], "msg": "Field required" } ] }
+    },
+    "500": {
+      "description": "Internal Server Error - An unexpected error occurred on the server.",
+      "body": { "detail": "Internal Server Error" }
+    }
+  },
+  "setup_instructions": {
+    "environment_variables": [
+      {
+        "name": "GOOGLE_APPLICATION_CREDENTIALS",
+        "description": "Path to the Google Cloud service account JSON key file (for Firestore and TTS).",
+        "required": true
+      }
+    ],
+    "installation": [
+      "pip install -r requirements.txt",
+      "Create a .env file and a serviceAccountKey.json file as per the documentation.",
+      "Run: uvicorn main:app --reload"
+    ]
+  }
+}

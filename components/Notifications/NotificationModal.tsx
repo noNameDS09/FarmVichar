@@ -1,8 +1,8 @@
+import { AlertType } from "@/types/types";
+import { Entypo, FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { Modal, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons, MaterialCommunityIcons, FontAwesome5, Entypo } from "@expo/vector-icons";
-import { AlertType } from "@/types/types";
 import { NotificationDetailModal } from "./NotificationDetailModal";
 
 type AlertWithIndex = AlertType & { index: number };
@@ -58,7 +58,7 @@ export const NotificationModal = ({
         const data = await response.json();
         setAlerts(data);
       } catch (error) {
-        console.error("Failed to fetch notifications:", error);
+        console.log("Failed to fetch notifications:", error);
       }
     };
     getNotifications();

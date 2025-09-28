@@ -1,15 +1,21 @@
+import {
+  Montserrat_400Regular,
+  Montserrat_500Medium,
+  Montserrat_700Bold,
+} from "@expo-google-fonts/montserrat";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
-import React, { useEffect, useMemo, useState } from "react";
+import { useFonts } from "expo-font";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Modal,
   ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  useColorScheme,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -26,10 +32,33 @@ interface Log {
 }
 
 interface Farm {
-  id: string;
-  village: string;
-  district: string;
+  id: string;  
+  farmName: string;
 }
+
+const dummyFarms: Farm[] = [
+  { id: 'farm1', farmName: 'My Local Farm' },
+  { id: 'farm2', farmName: 'Green Valley' },
+];
+
+const dummyLogs: Log[] = [
+  {
+    id: 'log1',
+    farmId: 'farm1',
+    activityType: 'Irrigation',
+    description: 'Watered the paddy fields for 1 hour.',
+    timestamp: new Date().toISOString(),
+  },
+  {
+    id: 'log2',
+    farmId: 'farm1',
+    activityType: 'Observation',
+    description: 'Checked for pests, none found.',
+    timestamp: new Date().toISOString(),
+  },
+];
+
+const ACCENT_COLOR = '#10b981'; // Tailwind's emerald-500
 
 export default function ActivityScreen() {
   const [logs, setLogs] = useState<Log[]>([]);
@@ -43,9 +72,15 @@ export default function ActivityScreen() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isModalVisible, setModalVisible] = useState(false);
 
-  const fetchLogsForFarm = async (farmId: string): Promise<Log[] | null> => {
-    // ... (This function remains unchanged)
+  const [fontsLoaded] = useFonts({
+    Montserrat_400Regular,
+    Montserrat_500Medium,
+    Montserrat_700Bold,
+  });
+
+  const fetchLogsForFarm = useCallback(async (farmId: string): Promise<Log[] | null> => {
     try {
+      setLoading(true);
       const logsResponse = await fetch(
         `https://farmvichardatabase.onrender.com/api/farms/${farmId}/logs/`
       );
@@ -54,18 +89,19 @@ export default function ActivityScreen() {
         setLogs(logsData);
         return logsData;
       } else {
-        console.warn("Could not fetch logs for farm:", logsResponse.status);
-        setLogs([]);
+        throw new Error(`Could not fetch logs for farm: ${logsResponse.status}`);
       }
     } catch (err) {
       console.error("Failed to fetch logs:", err);
-      setError("Failed to fetch logs.");
+      setError("Failed to fetch logs. Using dummy data.");
+      setLogs(dummyLogs);
+    } finally {
+      setLoading(false);
     }
     return null;
-  };
+  }, []);
   
   useEffect(() => {
-    // ... (This function remains unchanged)
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -81,6 +117,7 @@ export default function ActivityScreen() {
         if (farmsResponse.ok) {
           const farmsData = await farmsResponse.json();
           setFarms(farmsData);
+
           if (farmsData.length > 0) {
             const firstFarmId = farmsData[0].id;
             setSelectedFarmId(firstFarmId);
@@ -96,20 +133,23 @@ export default function ActivityScreen() {
             setLogs([]);
           }
         } else {
-          setFarms([]);
-          setLogs([]);
+          throw new Error(`Could not fetch farms: ${farmsResponse.status}`);
         }
       } catch (err) {
+        console.warn("API Error, using fallback data:", (err as Error).message);
+        setFarms(dummyFarms);
+        setLogs(dummyLogs);
+        setSelectedFarmId(dummyFarms[0]?.id || null);
+        setError("Failed to fetch data. Displaying sample data.");
         setError((err as Error).message);
       } finally {
         setLoading(false);
       }
     };
     fetchData();
-  }, []);
+  }, [fetchLogsForFarm]);
 
   const filteredData = useMemo(() => {
-    // ... (This function remains unchanged)
     return logs.filter((item) => {
       if (!item.timestamp) return false;
       const logDate = item.timestamp.split("T")[0];
@@ -117,7 +157,6 @@ export default function ActivityScreen() {
     });
   }, [logs, selectedDate]);
 
-  // ✅ This function now performs the optimistic update
   const handleLogAdded = (newLog: Log) => {
     // 1. Close the modal
     setModalVisible(false);
@@ -135,7 +174,6 @@ export default function ActivityScreen() {
   };
 
   const handleFarmChange = async (farmId: string) => {
-    // ... (This function remains unchanged)
     if (!farmId || farmId === selectedFarmId) return;
     setSelectedFarmId(farmId);
     setLoading(true);
@@ -143,76 +181,141 @@ export default function ActivityScreen() {
     setLoading(false);
   };
   
-  // The rest of the file (return statement and styles) is exactly the same
-  if (loading) {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
+  const calendarTheme = {
+    backgroundColor: isDarkMode ? '#18181b' : '#ffffff',
+    calendarBackground: isDarkMode ? '#18181b' : '#ffffff',
+    textSectionTitleColor: '#b6c1cd',
+    selectedDayBackgroundColor: ACCENT_COLOR,
+    selectedDayTextColor: '#ffffff',
+    todayTextColor: ACCENT_COLOR,
+    dayTextColor: isDarkMode ? '#e4e4e7' : '#2d4150',
+    textDisabledColor: isDarkMode ? '#404040' : '#d9e1e8',
+    dotColor: ACCENT_COLOR,
+    selectedDotColor: '#ffffff',
+    arrowColor: ACCENT_COLOR,
+    monthTextColor: isDarkMode ? '#fafafa' : '#2d4150',
+    indicatorColor: 'blue',
+    textDayFontWeight: '300',
+    textMonthFontWeight: 'bold',
+    textDayHeaderFontWeight: '300',
+    textDayFontSize: 16,
+    textMonthFontSize: 16,
+    textDayHeaderFontSize: 16,
+  };
+
+  if ((loading && !selectedFarmId) || !fontsLoaded) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#4a90e2" />
-        <Text>Loading activities...</Text>
+      <View className="flex-1 items-center justify-center bg-gray-50 dark:bg-black">
+        <ActivityIndicator size="large" color={ACCENT_COLOR} />
+        <Text
+          style={{ fontFamily: "Montserrat_400Regular" }}
+          className="mt-4 text-base text-gray-500 dark:text-gray-400"
+        >
+          Loading Activities...
+        </Text>
       </View>
     );
   }
 
-  if (error) {
+  if (error && !farms.length) {
     return (
-      <View style={styles.centered}>
-        <Text style={{ color: "red" }}>Error: {error}</Text>
+      <View className="flex-1 items-center justify-center p-8 bg-gray-50 dark:bg-black">
+        <Ionicons name="cloud-offline-outline" size={48} color="#9ca3af" />
+        <Text
+          style={{ fontFamily: "Montserrat_700Bold" }}
+          className="text-lg font-bold text-center text-gray-700 dark:text-gray-300 mt-4"
+        >
+          Could not fetch data
+        </Text>
+        <Text
+          style={{ fontFamily: "Montserrat_400Regular" }}
+          className="text-base text-center text-gray-500 dark:text-gray-400 mt-2"
+        >
+          {error}
+        </Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View style={styles.calendarContainer}>
+    <SafeAreaView className="flex-1 bg-emerald-500" edges={['top']}>
+      <View className="flex-1 px-4 pt-4 bg-gray-50 dark:bg-zinc-900 rounded-t-3xl">
+        <View className="bg-white dark:bg-zinc-900 rounded-3xl shadow-lg border border-gray-100 dark:border-zinc-700 p-2 mb-4">
           <Calendar
             onDayPress={(day) => setSelectedDate(day.dateString)}
             markedDates={{
               [selectedDate]: {
                 selected: true,
-                marked: true,
-                selectedColor: "blue",
+                disableTouchEvent: true,
               },
             }}
             key={selectedDate}
             current={selectedDate}
-            style={styles.calendar}
+            theme={calendarTheme}
           />
         </View>
-        <View style={styles.headerRow}>
-          <Text style={styles.heading}>Logs for {selectedDate}</Text>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => setModalVisible(true)}
-          >
-            <Ionicons name="add" size={24} color="white" />
-          </TouchableOpacity>
-        </View>
+
         {farms.length > 0 && (
-          <View style={styles.pickerContainer}>
+          <View className="mb-4 bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700">
             <Picker
               selectedValue={selectedFarmId}
-              style={styles.picker}
               onValueChange={(itemValue) => handleFarmChange(itemValue)}
+              dropdownIconColor={isDarkMode ? '#fafafa' : '#1f2937'}
+              style={{ color: isDarkMode ? '#fafafa' : '#1f2937' }}
             >
               {farms.map((farm) => (
                 <Picker.Item
                   key={farm.id}
-                  label={`${farm.village}, ${farm.district}`}
+                  label={farm.farmName}
                   value={farm.id}
                 />
               ))}
             </Picker>
           </View>
         )}
-        <ScrollView showsVerticalScrollIndicator={false}>
+
+        <View className="flex-row justify-between items-center mb-4">
+          <Text
+            style={{ fontFamily: "Montserrat_700Bold" }}
+            className="text-xl font-bold text-gray-800 dark:text-white"
+          >
+            Logs for {selectedDate}
+          </Text>
+          <TouchableOpacity
+            className="bg-emerald-500 rounded-full p-2.5 shadow-md"
+            onPress={() => setModalVisible(true)}
+            disabled={!selectedFarmId}
+          >
+            <Ionicons name="add" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
           {filteredData.length > 0 ? (
             filteredData.map((item) => <ActivityCard key={item.id} {...item} />)
           ) : (
-            <Text style={styles.noLogsText}>No logs for this date.</Text>
+            <View className="flex-1 items-center justify-center mt-16">
+              <Ionicons name="leaf-outline" size={48} color="#9ca3af" />
+              <Text
+                style={{ fontFamily: "Montserrat_500Medium" }}
+                className="text-lg font-semibold text-gray-500 dark:text-gray-400 mt-4"
+              >
+                No Logs Found
+              </Text>
+              <Text
+                style={{ fontFamily: "Montserrat_400Regular" }}
+                className="text-base text-gray-400 dark:text-gray-500 mt-1"
+              >
+                Add a new activity for this date.
+              </Text>
+            </View>
           )}
         </ScrollView>
       </View>
+
       <Modal
         visible={isModalVisible}
         animationType="slide"
@@ -229,50 +332,3 @@ export default function ActivityScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-    container: { flex: 1 },
-    centered: { flex: 1, justifyContent: "center", alignItems: "center" },
-    content: { flex: 1 },
-    calendarContainer: {
-      paddingHorizontal: 16,
-      paddingVertical: 4,
-      paddingTop: 0,
-    },
-    calendar: {
-      borderRadius: 8,
-      borderWidth: 1,
-      borderColor: "#e3e3e3",
-      shadowColor: "black",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 2,
-      elevation: 1,
-    },
-    headerRow: {
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginTop: 16,
-      marginBottom: 8,
-      paddingHorizontal: 16,
-    },
-    heading: { fontSize: 18, fontWeight: "600" },
-    addButton: {
-      backgroundColor: "#10B981",
-      borderRadius: 50,
-      padding: 8,
-      justifyContent: "center",
-      alignItems: "center",
-    },
-    noLogsText: { textAlign: "center", color: "gray", marginTop: 16 },
-    pickerContainer: {
-      marginHorizontal: 16,
-      marginBottom: 10,
-      borderWidth: 1,
-      borderColor: "#D1D5DB",
-      borderRadius: 8,
-      backgroundColor: "#fff",
-    },
-    picker: { height: 50, width: "100%" },
-  });

@@ -1,10 +1,8 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "nativewind";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import LoginForm from "@/components/Forms/LoginForm";
 import "../global.css";
 
 export default function RootLayout() {
@@ -30,34 +28,34 @@ export default function RootLayout() {
     checkLoginStatus();
   }, []);
 
-  if (isLoading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: isDark ? "black" : "white",
-        }}
-      >
-        <ActivityIndicator size="large" color={isDark ? "#c2c2c2" : "#212121"} />
-        <Text style={{ marginTop: 10, color: isDark ? "white" : "black" }}>
-          Loading...
-        </Text>
-      </View>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <View
+  //       style={{
+  //         flex: 1,
+  //         justifyContent: "center",
+  //         alignItems: "center",
+  //         backgroundColor: isDark ? "black" : "white",
+  //       }}
+  //     >
+  //       <ActivityIndicator size="large" color={isDark ? "#c2c2c2" : "#212121"} />
+  //       <Text style={{ marginTop: 10, color: isDark ? "white" : "black" }}>
+  //         Loading...
+  //       </Text>
+  //     </View>
+  //   );
+  // }
 
-  if (!isLoggedIn) {
-    return (
-      <LoginForm
-        onLoginSuccess={checkLoginStatus}
-        onSwitchToRegister={() => {
-          // if you later add RegisterForm, handle switch here
-        }}
-      />
-    );
-  }
+  // if (!isLoggedIn) {
+  //   return (
+  //     <LoginForm
+  //       onLoginSuccess={checkLoginStatus}
+  //       onSwitchToRegister={() => {
+  //         // if you later add RegisterForm, handle switch here
+  //       }}
+  //     />
+  //   );
+  // }
 
   return (
     <>

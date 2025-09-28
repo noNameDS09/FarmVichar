@@ -1,4 +1,43 @@
-import { DataOfLogType } from "@/types/types"
+import { DataOfLogType } from "@/types/types";
+
+export const dummyProfile = {
+  id: "dummyUser123",
+  fullName: "Ramesh Kumar",
+  phone: "9876543210",
+  age: 45,
+  gender: "Male",
+  educationLevel: "High School",
+  farmingExperienceYears: 20,
+};
+
+export const dummyFarms = [
+  {
+    id: "dummyFarm1",
+    village: "Kainakary",
+    taluka: "Kuttanad",
+    district: "Alappuzha",
+    state: "Kerala",
+    pinCode: "688501",
+    totalFarmArea: 5.5,
+    soilType: "Alluvial",
+    waterSource: "River",
+    irrigationMethod: "Canal",
+    climateNotes: "Tropical monsoon climate",
+  },
+  {
+    id: "dummyFarm2",
+    village: "Champakulam",
+    taluka: "Kuttanad",
+    district: "Alappuzha",
+    state: "Kerala",
+    pinCode: "688505",
+    totalFarmArea: 3.2,
+    soilType: "Clay",
+    waterSource: "Bore well",
+    irrigationMethod: "Drip",
+    climateNotes: "High humidity region",
+  },
+];
 
 export const mockDataOfLog: DataOfLogType[] = [
   {

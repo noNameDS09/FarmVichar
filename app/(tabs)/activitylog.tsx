@@ -1,17 +1,13 @@
-import { StyleSheet, Text, View } from "react-native";
-import React from "react";
 import ActivityScreen from "@/components/ActivityLog/ActivityScreen";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React from "react";
+import { View } from "react-native";
+
 const activitylog = () => {
   return (
-    <SafeAreaView className="flex-1 bg-gray-100">
-      <View className="flex-1">
-        <ActivityScreen />
-      </View>
-    </SafeAreaView>
+    <View className="flex-1 bg-gray-50 dark:bg-black">
+      <ActivityScreen />
+    </View>
   );
 };
 
 export default activitylog;
-
-const styles = StyleSheet.create({});
